@@ -22,7 +22,7 @@ export function useEvent(pattern, handler, context) {
                 targetEvents.off(pattern, handler)
             )
         }
-    })
+    }, [pattern])
 }
 
 export function getPath(property) {

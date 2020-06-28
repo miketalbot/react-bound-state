@@ -192,12 +192,14 @@ class State {
         ;[property, target, path] = getTargetFrom(property, target, path, stack)
         const value = get(target, property, defaultValue)
         const [id, refresh] = useState(-1)
+        const currentRefresh = useRef()
+        currentRefresh.current = refresh
         useEvent(getPatterns(target, [...path, ...getPath(property)]), update)
         updateValue.set = updateMany
         return [value, updateValue, id]
 
         function update() {
-            refresh(refreshId++)
+            currentRefresh.current(refreshId++)
         }
 
         function updateValue(newValue) {
@@ -256,6 +258,9 @@ class State {
     useRefresh(...paths) {
         const { target, path } = this[useTargetContext]()
         const [id, refresh] = useState(-1)
+        const currentRefresh = useRef()
+        currentRefresh.current = refresh
+
         const patterns = []
         for (let p of paths.flat(Infinity)) {
             patterns.push(...getPatterns(target, [...path, ...getPath(p)]))
@@ -263,7 +268,7 @@ class State {
         useEvent(Array.from(new Set(patterns)), update)
         return id
         function update() {
-            refresh(refreshId++)
+            currentRefresh.current(refreshId++)
         }
     }
 
@@ -443,6 +448,9 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
         target = existingTarget
     }
     const [finalTarget, setFinalTarget] = React.useState(target)
+    const currentTarget = useRef()
+    currentTarget.current = setFinalTarget
+
     useEvent(`${targetIds.get(finalTarget)}`, update)
     let updatedPath = [...path, ...getPath(property)]
     useEvent(
@@ -472,7 +480,7 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
     function update(newValue) {
         targetIds.set(newValue, targetIds.get(target))
         innerId.current = refreshId++
-        setFinalTarget(newValue)
+        currentTarget.current(newValue)
     }
 
     function ArrayContents() {

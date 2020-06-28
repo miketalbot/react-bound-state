@@ -1668,7 +1668,7 @@ function useEvent(pattern, handler, context) {
         return targetEvents.off(pattern, handler);
       });
     };
-  });
+  }, [pattern]);
 }
 function getPath(property) {
   return replaceArray(property).split(".").filter(Boolean);
@@ -1833,12 +1833,14 @@ var State = /*#__PURE__*/function () {
         id = _useState3[0],
         refresh = _useState3[1];
 
+    var currentRefresh = React.useRef();
+    currentRefresh.current = refresh;
     useEvent(getPatterns(target, [].concat(path, getPath(property))), update);
     updateValue.set = updateMany;
     return [value, updateValue, id];
 
     function update() {
-      refresh(refreshId++);
+      currentRefresh.current(refreshId++);
     }
 
     function updateValue(newValue) {
@@ -1898,6 +1900,8 @@ var State = /*#__PURE__*/function () {
         id = _useState4[0],
         refresh = _useState4[1];
 
+    var currentRefresh = React.useRef();
+    currentRefresh.current = refresh;
     var patterns = [];
 
     for (var _len = arguments.length, paths = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -1913,7 +1917,7 @@ var State = /*#__PURE__*/function () {
     return id;
 
     function update() {
-      refresh(refreshId++);
+      currentRefresh.current(refreshId++);
     }
   };
 
@@ -2034,6 +2038,8 @@ function Bind(_ref6) {
       finalTarget = _React$useState[0],
       setFinalTarget = _React$useState[1];
 
+  var currentTarget = React.useRef();
+  currentTarget.current = setFinalTarget;
   useEvent("" + targetIds.get(finalTarget), update);
   var updatedPath = [].concat(path, getPath(property));
   useEvent(getPatterns(finalTarget, updatedPath).map(function (p) {
@@ -2068,7 +2074,7 @@ function Bind(_ref6) {
   function update(newValue) {
     targetIds.set(newValue, targetIds.get(target));
     innerId.current = refreshId++;
-    setFinalTarget(newValue);
+    currentTarget.current(newValue);
   }
 
   function ArrayContents() {
