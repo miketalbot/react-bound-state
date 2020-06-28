@@ -82,7 +82,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Global</h3><ul><li><a href="global.html#createState">createState</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addListener">addListener</a></li><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#removeListener">removeListener</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -294,6 +294,11 @@ class State {
         }
     }
 
+    /**
+     * Causes the caller to refresh if any of the paths change
+     * @param {Array.&lt;string>|string} paths - the paths to refresh on
+     * @returns {number} the current unique id of the refresh
+     */
     useRefresh(...paths) {
         const { target, path } = this[useTargetContext]()
         const [id, refresh] = useState(-1)

@@ -5,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> Home</title>
+  <title> Socket</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -87,88 +87,227 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Title</p>
-                    <h1>Home</h1>
+                    <p>Components</p>
+                    <h1>Socket</h1>
                 </header>
                 
 
 
 
+
+<section>
+
+<header>
+    
+        <h2>
+            &ltSocket <i>filter</i> <i>type</i> /&gt
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
+
+
+    
+    <h4 class="name" id="Socket">
+        <a class="href-link" href="#Socket">#</a>
+        
+        <span class="code-name">
+            
+                &ltSocket <i>filter</i> <i>type</i> /&gt
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        Inserts an inversion of control socket that uses the event
+bus to find "plugs" to render.  The type indicates the
+type of plug to find, a filter property allows you to filter
+the resulting list.
+    </div>
     
 
 
-    <h3> </h3>
-
-
-
-
-
 
 
 
 
 
     
+        <h5>PropTypes:</h5>
+        
+<div class="table-container">
+  <table class="params table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        <th class="last">Default</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+          <tr class="deep-level-0">
+            <td class="name"><code>filter</code></td>
+            <td>
+              func
+            </td>
+            <td>No</td>
+            <td></td>
+            <td>function returnValue(value) {
+    return value
+}</td>
+          </tr>
+          
+    
+          <tr class="deep-level-0">
+            <td class="name"><code>type</code></td>
+            <td>
+              string
+            </td>
+            <td>Yes</td>
+            <td></td>
+            <td></td>
+          </tr>
+          
+    
+    </tbody>
+  </table>
+</div>
+    
 
 
 
 
-    <section>
-        <article><h1>react-bound-state</h1>
-<blockquote>
-<p>Binding library for React</p>
-</blockquote>
-<p><a href="https://www.npmjs.com/package/react-bound-state"><img src="https://img.shields.io/npm/v/react-bound-state.svg" alt="NPM"></a> <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a></p>
-<h2>Install</h2>
-<pre class="prettyprint source lang-bash"><code>npm install --save react-bound-state
-</code></pre>
-<h2>Usage</h2>
-<pre class="prettyprint source lang-jsx"><code>import React from &quot;react&quot;
-import { createState } from &quot;react-bound-state&quot;
-import { Grid, CssBaseline, Container, Box, TextField } from &quot;@material-ui/core&quot;
-
-const state = createState(&quot;global&quot;)
-const { Bind, bind } = state
-const Input = bind({ component: &lt;TextField variant=&quot;outlined&quot; /> })
-const stateObject = { title: &quot;global&quot; }
-
-function App() {
-    return (
-        &lt;Bind target={stateObject}>
-            &lt;CssBaseline />
-            &lt;Container>
-                &lt;Inner />
-            &lt;/Container>
-        &lt;/Bind>
-    )
-}
-
-function Inner() {
-    return (
-        &lt;Box p={1}>
-            &lt;Grid container spacing={2}>
-                &lt;Grid item>
-                    &lt;Input property=&quot;title&quot; label=&quot;title&quot; />
-                &lt;/Grid>
-                &lt;Grid item>
-                    &lt;Input
-                        property=&quot;somethingElse&quot;
-                        label=&quot;other&quot;
-                        defaultValue=&quot;&quot;
-                    />
-                &lt;/Grid>
-            &lt;/Grid>
-        &lt;/Box>
-    )
-}
-</code></pre>
-<h2>Documentation</h2>
-<p><a href="https://miketalbot.github.io/react-bound-state/">API Docs</a></p>
-<h2>License</h2>
-<p>MIT © <a href="https://github.com/miketalbot">miketalbot</a></p></article>
-    </section>
 
 
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="event-bus.js.html" class="button">View Source</a>
+            <span>
+                <a href="event-bus.js.html">event-bus.js</a>, <a href="event-bus.js.html#line178">line 178</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        
+
+<div id='component0'></div>
+
+<script>
+  ReactDOM.render(ReactWrapper({
+    example: "<Socket type=\"yourType\" any=\"other\" propsYou={{like: 'here'}}/>",
+    uniqId: "component0",
+  }), document.getElementById('component0'));
+</script>
+    
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+        
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

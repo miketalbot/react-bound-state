@@ -1,4 +1,105 @@
-import PropTypes from "prop-types"
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> event-bus.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">react-bound-state</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                <div class="dropdown is-hoverable is-right">
+                    <a class="dropdown-trigger link">
+                        Tutorials
+                        <i class="fas fa-chevron-down fa-xs"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-content">
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addListener">addListener</a></li><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#removeListener">removeListener</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>event-bus.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import PropTypes from "prop-types"
 import React from "react"
 import Emitter from "./emitter"
 import { inPriorityOrder } from "./sort"
@@ -91,7 +192,7 @@ export function once(pattern, handler, priority, timeout = 0) {
  * Raises an event on the event bus during the next free time
  * @param {String} event - the event to raise
  * @param  {...any} params - the parameters for the event
- * @return {Array<any>} - the parameters passed to the function which
+ * @return {Array&lt;any>} - the parameters passed to the function which
  * is useful so that you can return values without initiailizing them
  * @example
  * const [list] = raise('addToThisList', []) // list will be the list passed to the event
@@ -104,7 +205,7 @@ export function raiseLater(event, ...params) {
  * Raises an event on the event bus
  * @param {String} event - the event to raise
  * @param  {...any} params - the parameters for the event
- * @return {Array<any>} - the parameters passed to the function which
+ * @return {Array&lt;any>} - the parameters passed to the function which
  * is useful so that you can return values without initiailizing them
  * @example
  * const [list] = raise('addToThisList', []) // list will be the list passed to the event
@@ -126,7 +227,7 @@ export function raise(event, ...params) {
  * you may wait for the Promise
  * @param {String} event - the event to be raised
  * @param  {...any} params - the parameters passed to the event
- * @return {Array<any>} the parameters passed to the function
+ * @return {Array&lt;any>} the parameters passed to the function
  */
 export async function raiseAsync(event, ...params) {
     try {
@@ -173,23 +274,23 @@ export function* using(fn) {
  * the resulting list.
  * @component
  * @example
- * <Socket type="yourType" any="other" propsYou={{like: 'here'}}/>
+ * &lt;Socket type="yourType" any="other" propsYou={{like: 'here'}}/>
  */
 export function Socket({ filter = returnValue, type, children, ...props }) {
     let [items] = raise(
         `ui-plug.${type}`,
-        [children && { Component: Children, priority: 100 }],
+        [children &amp;&amp; { Component: Children, priority: 100 }],
         props
     )
     items = items.filter(Boolean)
     items.sort(inPriorityOrder)
     raise(`ui-render-plugs.${type}`, items)
     return (
-        <>
+        &lt;>
             {filter(items).map(({ Component }, index) => (
-                <Component key={index} {...props} />
+                &lt;Component key={index} {...props} />
             ))}
-        </>
+        &lt;/>
     )
 
     function Children() {
@@ -215,13 +316,13 @@ export function bestOnly(items) {
  * lower than a default if there are more than one plugs matching. Used
  * to override defaults - the default will be displayed if there is nothing
  * with a greater priorty
- * @param {Number} value - the priority to display items < than
+ * @param {Number} value - the priority to display items &lt; than
  */
 export function lessThan(value) {
     return function (items) {
-        return items.length < 2
+        return items.length &lt; 2
             ? items
-            : items.filter((i) => i.priority < value)
+            : items.filter((i) => i.priority &lt; value)
     }
 }
 
@@ -275,3 +376,32 @@ export function plug(type, predicate, Component, priority = 0) {
 export function ensureArray(item) {
     return Array.isArray(item) ? item : [item].filter((f) => f !== undefined)
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+</body>
+</html>

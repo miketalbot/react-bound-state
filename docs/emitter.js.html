@@ -1,4 +1,105 @@
-class EventEntry {
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> emitter.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">react-bound-state</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                <div class="dropdown is-hoverable is-right">
+                    <a class="dropdown-trigger link">
+                        Tutorials
+                        <i class="fas fa-chevron-down fa-xs"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-content">
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addListener">addListener</a></li><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#removeListener">removeListener</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>emitter.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>class EventEntry {
     constructor() {
         this.children = new Map()
         this.handlers = []
@@ -22,7 +123,7 @@ const handlers = []
 /**
  * @callback HandlePreparer
  *
- * @param {Array<Function>} handlers - the handlers being used
+ * @param {Array&lt;Function>} handlers - the handlers being used
  * @return an updated array or the original array sorted
  */
 
@@ -64,7 +165,7 @@ export class Events {
     on(name, handler) {
         const parts = name.split(this.delimiter)
         let scan = this.events
-        for (let i = 0, l = parts.length; i < l; i++) {
+        for (let i = 0, l = parts.length; i &lt; l; i++) {
             const part = parts[i]
             switch (part) {
                 case this.wildcard:
@@ -108,7 +209,7 @@ export class Events {
     off(name, handler) {
         const parts = name.split(this.delimiter)
         let scan = this.events
-        for (let i = 0, l = parts.length; i < l; i++) {
+        for (let i = 0, l = parts.length; i &lt; l; i++) {
             const part = parts[i]
             switch (part) {
                 case this.wildcard:
@@ -173,7 +274,7 @@ export class Events {
      * Emits an event synchronously
      * @param {string} event - the event to emit
      * @param {...params} params - the parameters to call the event with
-     * @returns {Array<any>} - an array of the parameters the event was called with
+     * @returns {Array&lt;any>} - an array of the parameters the event was called with
      */
     emit(event, ...params) {
         const handlers = []
@@ -189,7 +290,7 @@ export class Events {
      * Emits events asynchronously, in order, sequentially
      * @param {string} event - the event to emit
      * @param {...params} params - the parameters to call the event with
-     * @returns {Array<any>} - an array of the parameters the event was called with
+     * @returns {Array&lt;any>} - an array of the parameters the event was called with
      */
     async emitAsync(event, ...params) {
         const handlers = []
@@ -205,7 +306,7 @@ export class Events {
      * Emits events asynchronously, in parallel
      * @param {string} event - the event to emit
      * @param {...params} params - the parameters to call the event with
-     * @returns {Array<any>} - an array of the parameters the event was called with
+     * @returns {Array&lt;any>} - an array of the parameters the event was called with
      */
     async emitAtOnce(event, ...params) {
         const handlers = []
@@ -224,3 +325,32 @@ Events.prototype.addListener = Events.prototype.on
 Events.prototype.removeListener = Events.prototype.off
 
 export default Events
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+</body>
+</html>
