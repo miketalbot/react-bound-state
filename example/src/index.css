@@ -12,3 +12,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.dragger {
+    list-style: none;
+    background: #00000020;
+    border-radius: 8px;
+    display: flex;
+    overflow: hidden;
+}
+
+.full-width {
+    width: 100% !important;
+    flex-grow: 1;
+}

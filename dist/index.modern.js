@@ -1699,6 +1699,10 @@ function returnValue(v) {
 var stateId = 0;
 var nextId = 0;
 var refreshId = 0;
+var IndexContext = React.createContext(0);
+function useIndex() {
+  return useContext(IndexContext);
+}
 
 function Dummy(_ref) {
   var children = _ref.children;
@@ -1711,6 +1715,20 @@ function createState(name) {
 
 function emit(target, path, property, value) {
   targetEvents.emit("" + [].concat(path, getPath(property)).filter(Boolean).join("."), value);
+}
+
+function getTargetFrom(property, target, path, stack) {
+  for (var i = 0; i < property.length && i < stack.length - 1; i++) {
+    if (property[i] === "^") {
+      var step = stack[stack.length - 2 - i];
+      target = step.target;
+      path = step.path;
+    } else {
+      break;
+    }
+  }
+
+  return [property.replace(/^\^*/g, ""), target, path];
 }
 
 var useTargetContext = Symbol("useTargetContext");
@@ -1741,11 +1759,18 @@ var State = /*#__PURE__*/function () {
 
     var _this$useTargetContex = this[useTargetContext](),
         existingTarget = _this$useTargetContex.target,
-        path = _this$useTargetContex.path;
+        path = _this$useTargetContex.path,
+        stack = _this$useTargetContex.stack;
 
     target = target || existingTarget;
+
+    var _getTargetFrom = getTargetFrom(property, target, path, stack);
+
+    property = _getTargetFrom[0];
+    target = _getTargetFrom[1];
+    path = _getTargetFrom[2];
     var value = useRef(transformIn(get(target, property, defaultValue)));
-    useEvent(getPatterns(target, [].concat(path, getPath(property), ['**'])), update);
+    useEvent(getPatterns(target, [].concat(path, getPath(property), ["**"])), update);
 
     var _useState2 = useState(-1),
         refresh = _useState2[1];
@@ -1771,7 +1796,8 @@ var State = /*#__PURE__*/function () {
     this.id = stateId++;
     this.context = React.createContext({
       target: null,
-      path: []
+      path: [],
+      stack: []
     });
     this.Bind = this.Bind.bind(this);
     this.Bound = this.Bound.bind(this);
@@ -1788,9 +1814,16 @@ var State = /*#__PURE__*/function () {
 
     var _this$useTargetContex2 = this[useTargetContext](),
         existingTarget = _this$useTargetContex2.target,
-        path = _this$useTargetContex2.path;
+        path = _this$useTargetContex2.path,
+        stack = _this$useTargetContex2.stack;
 
     target = target || existingTarget;
+
+    var _getTargetFrom2 = getTargetFrom(property, target, path, stack);
+
+    property = _getTargetFrom2[0];
+    target = _getTargetFrom2[1];
+    path = _getTargetFrom2[2];
     var value = get(target, property, defaultValue);
 
     var _useState3 = useState(-1),
@@ -1806,7 +1839,7 @@ var State = /*#__PURE__*/function () {
     }
 
     function updateValue(newValue) {
-      if (typeof newValue === 'function') {
+      if (typeof newValue === "function") {
         newValue = newValue(get(target, property, defaultValue));
       }
 
@@ -1826,14 +1859,21 @@ var State = /*#__PURE__*/function () {
 
     var _this$useTargetContex3 = this[useTargetContext](),
         existingTarget = _this$useTargetContex3.target,
-        path = _this$useTargetContex3.path;
+        path = _this$useTargetContex3.path,
+        stack = _this$useTargetContex3.stack;
 
     target = target || existingTarget;
+
+    var _getTargetFrom3 = getTargetFrom(property, target, path, stack);
+
+    property = _getTargetFrom3[0];
+    target = _getTargetFrom3[1];
+    path = _getTargetFrom3[2];
     updateValue.set = updateMany;
     return updateValue;
 
     function updateValue(newValue) {
-      if (typeof newValue === 'function') {
+      if (typeof newValue === "function") {
         newValue = newValue(get(target, property));
       }
 
@@ -1954,7 +1994,7 @@ function recurseSet(newValue, target, path) {
         key = _Object$entries$_i[0],
         updatedValue = _Object$entries$_i[1];
 
-    if (typeof updatedValue === 'object') {
+    if (typeof updatedValue === "object" && !Array.isArray(updatedValue)) {
       recurseSet(updatedValue, get(target, key, {}), [].concat(path, [key]));
     } else {
       set(target, key, updatedValue);
@@ -1975,7 +2015,8 @@ function Bind(_ref6) {
 
   var _this$useTargetContex7 = this[useTargetContext](),
       existingTarget = _this$useTargetContex7.target,
-      path = _this$useTargetContex7.path;
+      path = _this$useTargetContex7.path,
+      stack = _this$useTargetContex7.stack;
 
   if (target && !targetIds.has(target)) {
     targetIds.set(target, nextId++);
@@ -1991,7 +2032,8 @@ function Bind(_ref6) {
       setFinalTarget = _React$useState[1];
 
   useEvent("" + targetIds.get(finalTarget), update);
-  useEvent(getPatterns(finalTarget, [].concat(path, getPath(property))).map(function (p) {
+  var updatedPath = [].concat(path, getPath(property));
+  useEvent(getPatterns(finalTarget, updatedPath).map(function (p) {
     return p + ".**";
   }), function () {
     return onChange(finalTarget);
@@ -2006,12 +2048,16 @@ function Bind(_ref6) {
       key: id
     });
   } else {
-    if (typeof subTarget !== 'object') throw new Error("You must bind to an object or an array");
+    if (typeof subTarget !== "object") throw new Error("You must bind to an object or an array");
     return /*#__PURE__*/React.createElement(this.context.Provider, {
       key: id + ":" + innerId.current,
       value: {
         target: subTarget,
-        path: [].concat(path, getPath(property))
+        path: updatedPath,
+        stack: [].concat(stack, [{
+          target: subTarget,
+          path: updatedPath
+        }])
       }
     }, children);
   }
@@ -2037,9 +2083,11 @@ function Bind(_ref6) {
 
   function Item(_ref7) {
     var index = _ref7.index;
-    return /*#__PURE__*/React.createElement(self.Bind, {
+    return /*#__PURE__*/React.createElement(IndexContext.Provider, {
+      value: index
+    }, /*#__PURE__*/React.createElement(self.Bind, {
       property: property + "." + index
-    }, children);
+    }, children));
   }
 }
 
@@ -2288,5 +2336,5 @@ function ensureArray$1(item) {
   });
 }
 
-export { Events, Socket, bestOnly, createState, ensureArray$1 as ensureArray, events, handle, lessThan, once, plug, raise, raiseAsync, raiseLater, setEventSource, stopPropagationAndExit, useEvent$1 as useEvent, using };
+export { Events, Socket, bestOnly, createState, ensureArray$1 as ensureArray, events, handle, lessThan, once, plug, raise, raiseAsync, raiseLater, setEventSource, stopPropagationAndExit, useEvent$1 as useEvent, useIndex, using };
 //# sourceMappingURL=index.modern.js.map

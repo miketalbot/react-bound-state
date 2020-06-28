@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Socket</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">react-bound-state</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    API Documentation
+                </a>
+                <div class="dropdown is-hoverable is-right">
+                    <a class="dropdown-trigger link">
+                        Tutorials
+                        <i class="fas fa-chevron-down fa-xs"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-content">
+                        
+                        </div>
+                    </div>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Components</p>
+                    <h1>Socket</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+            &ltSocket <i>filter</i> <i>type</i> /&gt
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class='vertical-section'>
+                <div class="members">
+                    <div class="member">
+                        <div class=name>
+                            <span class="tag">Constructor</span>
+                        </div>
+                        
+
+
+    
+    <h4 class="name" id="Socket">
+        <a class="href-link" href="#Socket">#</a>
+        
+        <span class="code-name">
+            
+                &ltSocket <i>filter</i> <i>type</i> /&gt
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        Inserts an inversion of control socket that uses the event
+bus to find "plugs" to render.  The type indicates the
+type of plug to find, a filter property allows you to filter
+the resulting list.
+    </div>
+    
+
+
+
+
+
+
+
+    
+        <h5>PropTypes:</h5>
+        
+<div class="table-container">
+  <table class="params table">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+        <th class="last">Default</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+          <tr class="deep-level-0">
+            <td class="name"><code>filter</code></td>
+            <td>
+              func
+            </td>
+            <td>No</td>
+            <td></td>
+            <td>function returnValue(value) {
+    return value
+}</td>
+          </tr>
+          
+    
+          <tr class="deep-level-0">
+            <td class="name"><code>type</code></td>
+            <td>
+              string
+            </td>
+            <td>Yes</td>
+            <td></td>
+            <td></td>
+          </tr>
+          
+    
+    </tbody>
+  </table>
+</div>
+    
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="event-bus.js.html" class="button">View Source</a>
+            <span>
+                <a href="event-bus.js.html">event-bus.js</a>, <a href="event-bus.js.html#line185">line 185</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        
+
+<div id='component0'></div>
+
+<script>
+  ReactDOM.render(ReactWrapper({
+    example: "<Socket type=\"yourType\" any=\"other\" propsYou={{like: 'here'}}/>",
+    uniqId: "component0",
+  }), document.getElementById('component0'));
+</script>
+    
+
+
+
+                    </div>
+                </div>
+            </div>
+        
+    
+    </div>
+    
+        
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.4</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+</body>
+</html>
