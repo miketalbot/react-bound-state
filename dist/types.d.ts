@@ -33,6 +33,8 @@ declare type Extractor = (event: any) => any;
  */
 declare function createState(name: string): State;
 
+declare interface Setter { (any): void, set: (any)=>void }
+
 declare class State {
     /**
      * Provides a way of creating binding values
@@ -140,9 +142,9 @@ declare class State {
      * Returns a setter for properties
      * @param {string} property - the property to set
      * @param {any} [target] - an override for the current value
-     * @returns {Function} - a value to set other values
+     * @returns {Setter} - a value to set other values
      */
-    useSetter(property: string, target: any): (any) => void;
+    useSetter(property: string, target: any): Setter;
 }
 
 /**
