@@ -57,6 +57,8 @@ function Inner() {
 
 [API Docs](https://miketalbot.github.io/react-bound-state/)
 
+[Demo](https://miketalbot.github.io/react-bound-state/example)
+
 ## License
 
 MIT © [miketalbot](https://github.com/miketalbot)

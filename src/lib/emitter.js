@@ -56,8 +56,8 @@ export class Events {
 
     /**
      * Adds an event listener with wildcards etc
-     * @alias addEventListener
-     * @alias addListener
+     * @instance
+     * @memberOf Events
      * @param {string} name - the event pattern to handle
      * @param {Function} handler - the handler for the pattern
      */
@@ -100,8 +100,6 @@ export class Events {
 
     /**
      * Removes a listener from a pattern
-     * @alias removeEventListener
-     * @alias removeListener
      * @param {string} name - the pattern of the handler to remove
      * @param {Function} [handler] - the handler to remove, or all handlers
      */
@@ -139,14 +137,14 @@ export class Events {
         }
     }
 
-    _emit(scan, parts, index, handlers = handlers) {
+    _emit(scan, parts, index, handlers) {
         if (index >= parts.length) {
             handlers.push(...scan.handlers)
             return
         }
         handlers.push(...scan.allBelow)
-        this._emit(scan.all, parts, index + 1)
-        this._emit(scan.getChild(parts[index]), parts, index + 1)
+        this._emit(scan.all, parts, index + 1, handlers)
+        this._emit(scan.getChild(parts[index]), parts, index + 1, handlers)
     }
 
     _callHandlers(handlerList, params) {

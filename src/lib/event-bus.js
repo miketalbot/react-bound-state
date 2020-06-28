@@ -3,7 +3,14 @@ import React from "react"
 import Emitter from "./emitter"
 import { inPriorityOrder } from "./sort"
 
-class Cancel extends Error {}
+class Cancel  {
+    constructor(message) {
+        this.name = "Cancel"
+        this.message = message
+        this.stack = new Error().stack
+    }
+}
+
 
 const Framework = (window.Framework = window.Framework || {})
 
