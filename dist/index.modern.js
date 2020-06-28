@@ -1,5 +1,96 @@
 import React, { useEffect, useContext, useRef, useState } from 'react';
 
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+function _objectWithoutPropertiesLoose(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _createForOfIteratorHelperLoose(o, allowArrayLike) {
+  var it;
+
+  if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it) o = it;
+      var i = 0;
+      return function () {
+        if (i >= o.length) return {
+          done: true
+        };
+        return {
+          done: false,
+          value: o[i++]
+        };
+      };
+    }
+
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  it = o[Symbol.iterator]();
+  return it.next.bind(it);
+}
+
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
@@ -1079,12 +1170,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 function get(object, path, defaultValue) {
   path = replaceArray(path);
-  const parts = path.split(".").filter(Boolean);
+  var parts = path.split(".").filter(Boolean);
   if (parts.length === 0) return object;
 
-  for (let i = 0, l = parts.length - 1; i < l; i++) {
-    const part = parts[i];
-    const current = object[part];
+  for (var i = 0, l = parts.length - 1; i < l; i++) {
+    var part = parts[i];
+    var current = object[part];
 
     if (current && typeof current === "object") {
       object = current;
@@ -1095,8 +1186,8 @@ function get(object, path, defaultValue) {
     }
   }
 
-  let lastPart = parts[parts.length - 1];
-  let value = object[lastPart];
+  var lastPart = parts[parts.length - 1];
+  var value = object[lastPart];
   value = value !== undefined ? value : defaultValue;
   object[lastPart] = value;
   return value;
@@ -1106,12 +1197,12 @@ function replaceArray(path) {
 }
 function set(object, path, value) {
   path = replaceArray(path);
-  const parts = path.split(".").filter(Boolean);
+  var parts = path.split(".").filter(Boolean);
   if (parts.length === 0) return;
 
-  for (let i = 0, l = parts.length - 1; i < l; i++) {
-    const part = parts[i];
-    const current = object[part];
+  for (var i = 0, l = parts.length - 1; i < l; i++) {
+    var part = parts[i];
+    var current = object[part];
 
     if (current && typeof current === "object") {
       object = current;
@@ -1126,46 +1217,237 @@ function set(object, path, value) {
   return value;
 }
 
-class EventEntry {
-  constructor() {
+// A type of promise-like that resolves synchronously and supports only one observer
+const _Pact = /*#__PURE__*/(function() {
+	function _Pact() {}
+	_Pact.prototype.then = function(onFulfilled, onRejected) {
+		const result = new _Pact();
+		const state = this.s;
+		if (state) {
+			const callback = state & 1 ? onFulfilled : onRejected;
+			if (callback) {
+				try {
+					_settle(result, 1, callback(this.v));
+				} catch (e) {
+					_settle(result, 2, e);
+				}
+				return result;
+			} else {
+				return this;
+			}
+		}
+		this.o = function(_this) {
+			try {
+				const value = _this.v;
+				if (_this.s & 1) {
+					_settle(result, 1, onFulfilled ? onFulfilled(value) : value);
+				} else if (onRejected) {
+					_settle(result, 1, onRejected(value));
+				} else {
+					_settle(result, 2, value);
+				}
+			} catch (e) {
+				_settle(result, 2, e);
+			}
+		};
+		return result;
+	};
+	return _Pact;
+})();
+
+// Settles a pact synchronously
+function _settle(pact, state, value) {
+	if (!pact.s) {
+		if (value instanceof _Pact) {
+			if (value.s) {
+				if (state & 1) {
+					state = value.s;
+				}
+				value = value.v;
+			} else {
+				value.o = _settle.bind(null, pact, state);
+				return;
+			}
+		}
+		if (value && value.then) {
+			value.then(_settle.bind(null, pact, state), _settle.bind(null, pact, 2));
+			return;
+		}
+		pact.s = state;
+		pact.v = value;
+		const observer = pact.o;
+		if (observer) {
+			observer(pact);
+		}
+	}
+}
+
+function _isSettledPact(thenable) {
+	return thenable instanceof _Pact && thenable.s & 1;
+}
+
+// Asynchronously iterate through an object that has a length property, passing the index as the first argument to the callback (even as the length property changes)
+function _forTo(array, body, check) {
+	var i = -1, pact, reject;
+	function _cycle(result) {
+		try {
+			while (++i < array.length && (!check || !check())) {
+				result = body(i);
+				if (result && result.then) {
+					if (_isSettledPact(result)) {
+						result = result.v;
+					} else {
+						result.then(_cycle, reject || (reject = _settle.bind(null, pact = new _Pact(), 2)));
+						return;
+					}
+				}
+			}
+			if (pact) {
+				_settle(pact, 1, result);
+			} else {
+				pact = result;
+			}
+		} catch (e) {
+			_settle(pact || (pact = new _Pact()), 2, e);
+		}
+	}
+	_cycle();
+	return pact;
+}
+
+const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
+
+// Asynchronously iterate through an object's values
+// Uses for...of if the runtime supports it, otherwise iterates until length on a copy
+function _forOf(target, body, check) {
+	if (typeof target[_iteratorSymbol] === "function") {
+		var iterator = target[_iteratorSymbol](), step, pact, reject;
+		function _cycle(result) {
+			try {
+				while (!(step = iterator.next()).done && (!check || !check())) {
+					result = body(step.value);
+					if (result && result.then) {
+						if (_isSettledPact(result)) {
+							result = result.v;
+						} else {
+							result.then(_cycle, reject || (reject = _settle.bind(null, pact = new _Pact(), 2)));
+							return;
+						}
+					}
+				}
+				if (pact) {
+					_settle(pact, 1, result);
+				} else {
+					pact = result;
+				}
+			} catch (e) {
+				_settle(pact || (pact = new _Pact()), 2, e);
+			}
+		}
+		_cycle();
+		if (iterator.return) {
+			var _fixup = function(value) {
+				try {
+					if (!step.done) {
+						iterator.return();
+					}
+				} catch(e) {
+				}
+				return value;
+			};
+			if (pact && pact.then) {
+				return pact.then(_fixup, function(e) {
+					throw _fixup(e);
+				});
+			}
+			_fixup();
+		}
+		return pact;
+	}
+	// No support for Symbol.iterator
+	if (!("length" in target)) {
+		throw new TypeError("Object is not iterable");
+	}
+	// Handle live collections properly
+	var values = [];
+	for (var i = 0; i < target.length; i++) {
+		values.push(target[i]);
+	}
+	return _forTo(values, function(i) { return body(values[i]); }, check);
+}
+
+const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+// Asynchronously call a function and send errors to recovery continuation
+function _catch(body, recover) {
+	try {
+		var result = body();
+	} catch(e) {
+		return recover(e);
+	}
+	if (result && result.then) {
+		return result.then(void 0, recover);
+	}
+	return result;
+}
+
+var EventEntry = /*#__PURE__*/function () {
+  function EventEntry() {
     this.children = new Map();
     this.handlers = [];
     this.allBelow = [];
   }
 
-  getChild(key) {
-    let result;
+  var _proto = EventEntry.prototype;
+
+  _proto.getChild = function getChild(key) {
+    var result;
     if (this.children.has(key)) return this.children.get(key);
     this.children.set(key, result = new EventEntry());
     return result;
-  }
+  };
 
-  get all() {
-    return this._all = this._all || new EventEntry();
-  }
+  _createClass(EventEntry, [{
+    key: "all",
+    get: function get() {
+      return this._all = this._all || new EventEntry();
+    }
+  }]);
 
-}
-class Events {
-  constructor({
-    delimiter = ".",
-    wildcard = "*",
-    prepareHandlers = v => v,
-    storeHandlers = v => v
-  } = {}) {
+  return EventEntry;
+}();
+var Events = /*#__PURE__*/function () {
+  function Events(_temp) {
+    var _ref = _temp === void 0 ? {} : _temp,
+        _ref$delimiter = _ref.delimiter,
+        delimiter = _ref$delimiter === void 0 ? "." : _ref$delimiter,
+        _ref$wildcard = _ref.wildcard,
+        wildcard = _ref$wildcard === void 0 ? "*" : _ref$wildcard,
+        _ref$prepareHandlers = _ref.prepareHandlers,
+        prepareHandlers = _ref$prepareHandlers === void 0 ? function (v) {
+      return v;
+    } : _ref$prepareHandlers,
+        _ref$storeHandlers = _ref.storeHandlers,
+        storeHandlers = _ref$storeHandlers === void 0 ? function (v) {
+      return v;
+    } : _ref$storeHandlers;
+
     this.delimiter = delimiter;
     this.wildcard = wildcard;
-    this.doubleWild = `${wildcard}${wildcard}`;
+    this.doubleWild = "" + wildcard + wildcard;
     this.events = new EventEntry();
     this.prepareHandlers = prepareHandlers;
     this.storeHandlers = storeHandlers;
   }
 
-  on(name, handler) {
-    const parts = name.split(this.delimiter);
-    let scan = this.events;
+  var _proto2 = Events.prototype;
 
-    for (let i = 0, l = parts.length; i < l; i++) {
-      const part = parts[i];
+  _proto2.on = function on(name, handler) {
+    var parts = name.split(this.delimiter);
+    var scan = this.events;
+
+    for (var i = 0, l = parts.length; i < l; i++) {
+      var part = parts[i];
 
       switch (part) {
         case this.wildcard:
@@ -1185,24 +1467,24 @@ class Events {
 
     scan.handlers.push(handler);
     scan.handlers = this.storeHandlers(scan.handlers);
-  }
+  };
 
-  once(name, handler) {
-    const self = this;
+  _proto2.once = function once(name, handler) {
+    var self = this;
     self.on(name, process);
 
-    function process(...params) {
+    function process() {
       self.off(name, process);
-      handler(...params);
+      handler.apply(void 0, arguments);
     }
-  }
+  };
 
-  off(name, handler) {
-    const parts = name.split(this.delimiter);
-    let scan = this.events;
+  _proto2.off = function off(name, handler) {
+    var parts = name.split(this.delimiter);
+    var scan = this.events;
 
-    for (let i = 0, l = parts.length; i < l; i++) {
-      const part = parts[i];
+    for (var i = 0, l = parts.length; i < l; i++) {
+      var part = parts[i];
 
       switch (part) {
         case this.wildcard:
@@ -1216,7 +1498,7 @@ class Events {
               return;
             }
 
-            const idx = scan.allBelow.indexOf(handler);
+            var idx = scan.allBelow.indexOf(handler);
             if (idx === -1) return;
             scan.allBelow.splice(idx, 1);
             return;
@@ -1229,95 +1511,141 @@ class Events {
     }
 
     if (handler !== undefined) {
-      const idx = scan.handlers.indexOf(handler);
-      if (idx === -1) return;
-      scan.handlers.splice(idx, 1);
+      var _idx = scan.handlers.indexOf(handler);
+
+      if (_idx === -1) return;
+      scan.handlers.splice(_idx, 1);
     } else {
       scan.handlers = [];
     }
-  }
+  };
 
-  _emit(scan, parts, index, handlers) {
+  _proto2._emit = function _emit(scan, parts, index, handlers) {
     if (index >= parts.length) {
-      handlers.push(...scan.handlers);
+      handlers.push.apply(handlers, scan.handlers);
       return;
     }
 
-    handlers.push(...scan.allBelow);
+    handlers.push.apply(handlers, scan.allBelow);
 
     this._emit(scan.all, parts, index + 1, handlers);
 
     this._emit(scan.getChild(parts[index]), parts, index + 1, handlers);
-  }
+  };
 
-  _callHandlers(handlerList, params) {
-    for (const handler of handlerList) {
+  _proto2._callHandlers = function _callHandlers(handlerList, params) {
+    for (var _iterator = _createForOfIteratorHelperLoose(handlerList), _step; !(_step = _iterator()).done;) {
+      var handler = _step.value;
       handler.apply(this, params);
     }
-  }
+  };
 
-  async _callHandlersAsync(handlerList, params) {
-    for (const handler of handlerList) {
-      await handler.apply(this, params);
+  _proto2._callHandlersAsync = function _callHandlersAsync(handlerList, params) {
+    try {
+      var _this2 = this;
+
+      var _temp3 = _forOf(handlerList, function (handler) {
+        return Promise.resolve(handler.apply(_this2, params)).then(function () {});
+      });
+
+      return Promise.resolve(_temp3 && _temp3.then ? _temp3.then(function () {}) : void 0);
+    } catch (e) {
+      return Promise.reject(e);
     }
-  }
+  };
 
-  async _callHandlersAsyncAtOnce(handlerList, params) {
-    const promises = [];
+  _proto2._callHandlersAsyncAtOnce = function _callHandlersAsyncAtOnce(handlerList, params) {
+    try {
+      var _this4 = this;
 
-    for (const handler of handlerList) {
-      promises.push(Promise.resolve(handler.apply(this, params)));
+      var promises = [];
+
+      for (var _iterator2 = _createForOfIteratorHelperLoose(handlerList), _step2; !(_step2 = _iterator2()).done;) {
+        var handler = _step2.value;
+        promises.push(Promise.resolve(handler.apply(_this4, params)));
+      }
+
+      return Promise.resolve(Promise.all(promises)).then(function () {});
+    } catch (e) {
+      return Promise.reject(e);
     }
+  };
 
-    await Promise.all(promises);
-  }
-
-  emit(event, ...params) {
-    const handlers = [];
+  _proto2.emit = function emit(event) {
+    var handlers = [];
     this.event = event;
-    const parts = event.split(this.delimiter);
+    var parts = event.split(this.delimiter);
 
     this._emit(this.events, parts, 0, handlers);
 
-    const toExecute = this.prepareHandlers(handlers);
+    var toExecute = this.prepareHandlers(handlers);
+
+    for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      params[_key - 1] = arguments[_key];
+    }
 
     this._callHandlers(toExecute, params);
 
     return params;
-  }
+  };
 
-  async emitAsync(event, ...params) {
-    const handlers = [];
-    this.event = event;
-    const parts = event.split(this.delimiter);
+  _proto2.emitAsync = function emitAsync(event) {
+    for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      params[_key2 - 1] = arguments[_key2];
+    }
 
-    this._emit(this.events, parts, 0, handlers);
+    try {
+      var _this6 = this;
 
-    const toExecute = this.prepareHandlers(handlers);
-    await this._callHandlersAsync(toExecute, params);
-    return params;
-  }
+      var _handlers = [];
+      _this6.event = event;
+      var parts = event.split(_this6.delimiter);
 
-  async emitAtOnce(event, ...params) {
-    const handlers = [];
-    this.event = event;
-    const parts = event.split(this.delimiter);
+      _this6._emit(_this6.events, parts, 0, _handlers);
 
-    this._emit(this.events, parts, 0, handlers);
+      var toExecute = _this6.prepareHandlers(_handlers);
 
-    const toExecute = this.prepareHandlers(handlers);
-    await this._callHandlersAsyncAtOnce(toExecute, params);
-    return params;
-  }
+      return Promise.resolve(_this6._callHandlersAsync(toExecute, params)).then(function () {
+        return params;
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
 
-}
+  _proto2.emitAtOnce = function emitAtOnce(event) {
+    for (var _len3 = arguments.length, params = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+      params[_key3 - 1] = arguments[_key3];
+    }
+
+    try {
+      var _this8 = this;
+
+      var _handlers2 = [];
+      _this8.event = event;
+      var parts = event.split(_this8.delimiter);
+
+      _this8._emit(_this8.events, parts, 0, _handlers2);
+
+      var toExecute = _this8.prepareHandlers(_handlers2);
+
+      return Promise.resolve(_this8._callHandlersAsyncAtOnce(toExecute, params)).then(function () {
+        return params;
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  };
+
+  return Events;
+}();
 Events.prototype.addEventListener = Events.prototype.on;
 Events.prototype.removeEventListener = Events.prototype.off;
 Events.prototype.addListener = Events.prototype.on;
 Events.prototype.removeListener = Events.prototype.off;
 
-const targetEvents = new Events();
-const targetIds = new WeakMap();
+var targetEvents = new Events();
+var targetIds = new WeakMap();
 
 function ensureArray(v) {
   return (Array.isArray(v) ? v : [v]).filter(Boolean);
@@ -1328,27 +1656,31 @@ function useEvent(pattern, handler, context) {
     handler = handler.bind(context);
   }
 
-  useEffect(() => {
-    ensureArray(pattern).forEach(pattern => targetEvents.on(pattern, handler));
-    return () => {
-      ensureArray(pattern).forEach(pattern => targetEvents.off(pattern, handler));
+  useEffect(function () {
+    ensureArray(pattern).forEach(function (pattern) {
+      return targetEvents.on(pattern, handler);
+    });
+    return function () {
+      ensureArray(pattern).forEach(function (pattern) {
+        return targetEvents.off(pattern, handler);
+      });
     };
   });
 }
 function getPath(property) {
   return replaceArray(property).split(".").filter(Boolean);
 }
-const patterns = new Map();
+var patterns = new Map();
 function getPatterns(target, path) {
-  const id = `${targetIds.get(target)}`;
-  const key = `${id}.${path.join(".")}`;
+  var id = "" + targetIds.get(target);
+  var key = id + "." + path.join(".");
   if (patterns.has(key)) return patterns.get(key);
-  const output = [];
-  let current = path[0];
-  output.push(`${current}`);
+  var output = [];
+  var current = path[0];
+  output.push("" + current);
 
-  for (let i = 1, l = path.length; i < l; i++) {
-    current = `${current}.${path[i]}`;
+  for (var i = 1, l = path.length; i < l; i++) {
+    current = current + "." + path[i];
     output.push(current);
   }
 
@@ -1364,13 +1696,12 @@ function returnValue(v) {
   return v;
 }
 
-let stateId = 0;
-let nextId = 0;
-let refreshId = 0;
+var stateId = 0;
+var nextId = 0;
+var refreshId = 0;
 
-function Dummy({
-  children
-}) {
+function Dummy(_ref) {
+  var children = _ref.children;
   return /*#__PURE__*/React.createElement(Fragment, null, children);
 }
 
@@ -1379,51 +1710,61 @@ function createState(name) {
 }
 
 function emit(target, path, property, value) {
-  targetEvents.emit(`${[...path, ...getPath(property)].filter(Boolean).join(".")}`, value);
+  targetEvents.emit("" + [].concat(path, getPath(property)).filter(Boolean).join("."), value);
 }
 
-const useTargetContext = Symbol("useTargetContext");
+var useTargetContext = Symbol("useTargetContext");
 
-class State {
-  [useTargetContext]() {
+var State = /*#__PURE__*/function () {
+  var _proto = State.prototype;
+
+  _proto[useTargetContext] = function () {
     return useContext(this.context);
-  }
+  };
 
-  useBinding(property, {
-    defaultValue,
-    transformIn = returnValue,
-    transformOut = returnValue,
-    extract = standardExtract,
-    attribute = "value",
-    event = "onChange",
-    target
-  } = {}) {
-    const {
-      target: existingTarget,
-      path
-    } = this[useTargetContext]();
+  _proto.useBinding = function useBinding(property, _temp) {
+    var _ref3;
+
+    var _ref2 = _temp === void 0 ? {} : _temp,
+        defaultValue = _ref2.defaultValue,
+        _ref2$transformIn = _ref2.transformIn,
+        transformIn = _ref2$transformIn === void 0 ? returnValue : _ref2$transformIn,
+        _ref2$transformOut = _ref2.transformOut,
+        transformOut = _ref2$transformOut === void 0 ? returnValue : _ref2$transformOut,
+        _ref2$extract = _ref2.extract,
+        extract = _ref2$extract === void 0 ? standardExtract : _ref2$extract,
+        _ref2$attribute = _ref2.attribute,
+        attribute = _ref2$attribute === void 0 ? "value" : _ref2$attribute,
+        _ref2$event = _ref2.event,
+        event = _ref2$event === void 0 ? "onChange" : _ref2$event,
+        target = _ref2.target;
+
+    var _this$useTargetContex = this[useTargetContext](),
+        existingTarget = _this$useTargetContex.target,
+        path = _this$useTargetContex.path;
+
     target = target || existingTarget;
-    const value = useRef(transformIn(get(target, property, defaultValue)));
-    useEvent(getPatterns(target, [...path, ...getPath(property), '**']), update);
-    const [, refresh] = useState(-1);
-    return {
-      [attribute]: value.current,
-      [event]: updateValue
-    };
+    var value = useRef(transformIn(get(target, property, defaultValue)));
+    useEvent(getPatterns(target, [].concat(path, getPath(property), ['**'])), update);
+
+    var _useState2 = useState(-1),
+        refresh = _useState2[1];
+
+    return _ref3 = {}, _ref3[attribute] = value.current, _ref3[event] = updateValue, _ref3;
 
     function update() {
       value.current = transformIn(get(target, property, defaultValue));
       refresh(refreshId++);
     }
 
-    function updateValue(...params) {
-      const newValue = transformOut(extract(...params));
+    function updateValue() {
+      var newValue = transformOut(extract.apply(void 0, arguments));
       set(target, property, newValue);
       emit(target, path, property, newValue);
     }
-  }
+  };
 
-  constructor(name) {
+  function State(name) {
     this.Bind = Bind;
     this.Bound = Bound;
     this.name = name;
@@ -1440,15 +1781,23 @@ class State {
     this.useCurrentTarget = this.useCurrentTarget.bind(this);
   }
 
-  useState(property = "", defaultValue, target) {
-    const {
-      target: existingTarget,
-      path
-    } = this[useTargetContext]();
+  _proto.useState = function useState$1(property, defaultValue, target) {
+    if (property === void 0) {
+      property = "";
+    }
+
+    var _this$useTargetContex2 = this[useTargetContext](),
+        existingTarget = _this$useTargetContex2.target,
+        path = _this$useTargetContex2.path;
+
     target = target || existingTarget;
-    const value = get(target, property, defaultValue);
-    const [id, refresh] = useState(-1);
-    useEvent(getPatterns(target, [...path, ...getPath(property)]), update);
+    var value = get(target, property, defaultValue);
+
+    var _useState3 = useState(-1),
+        id = _useState3[0],
+        refresh = _useState3[1];
+
+    useEvent(getPatterns(target, [].concat(path, getPath(property))), update);
     updateValue.set = updateMany;
     return [value, updateValue, id];
 
@@ -1466,15 +1815,19 @@ class State {
     }
 
     function updateMany(newValue) {
-      recurseSet(newValue, value, [...path, ...getPath(property)]);
+      recurseSet(newValue, value, [].concat(path, getPath(property)));
     }
-  }
+  };
 
-  useSetter(property = "", target) {
-    const {
-      target: existingTarget,
-      path
-    } = this[useTargetContext]();
+  _proto.useSetter = function useSetter(property, target) {
+    if (property === void 0) {
+      property = "";
+    }
+
+    var _this$useTargetContex3 = this[useTargetContext](),
+        existingTarget = _this$useTargetContex3.target,
+        path = _this$useTargetContex3.path;
+
     target = target || existingTarget;
     updateValue.set = updateMany;
     return updateValue;
@@ -1489,20 +1842,28 @@ class State {
     }
 
     function updateMany(newValue) {
-      recurseSet(newValue, get(target, property, {}), [...path, ...getPath(property)]);
+      recurseSet(newValue, get(target, property, {}), [].concat(path, getPath(property)));
     }
-  }
+  };
 
-  useRefresh(...paths) {
-    const {
-      target,
-      path
-    } = this[useTargetContext]();
-    const [id, refresh] = useState(-1);
-    const patterns = [];
+  _proto.useRefresh = function useRefresh() {
+    var _this$useTargetContex4 = this[useTargetContext](),
+        target = _this$useTargetContex4.target,
+        path = _this$useTargetContex4.path;
 
-    for (let p of paths.flat(Infinity)) {
-      patterns.push(...getPatterns(target, [...path, ...getPath(p)]));
+    var _useState4 = useState(-1),
+        id = _useState4[0],
+        refresh = _useState4[1];
+
+    var patterns = [];
+
+    for (var _len = arguments.length, paths = new Array(_len), _key = 0; _key < _len; _key++) {
+      paths[_key] = arguments[_key];
+    }
+
+    for (var _iterator = _createForOfIteratorHelperLoose(paths.flat(Infinity)), _step; !(_step = _iterator()).done;) {
+      var p = _step.value;
+      patterns.push.apply(patterns, getPatterns(target, [].concat(path, getPath(p))));
     }
 
     useEvent(Array.from(new Set(patterns)), update);
@@ -1511,58 +1872,61 @@ class State {
     function update() {
       refresh(refreshId++);
     }
-  }
+  };
 
-  bind(bindingProps) {
-    const self = this;
-    return function ({
-      state = self,
-      ...props
-    }) {
-      return /*#__PURE__*/React.createElement(state.Bound, Object.assign({}, bindingProps, props));
+  _proto.bind = function bind(bindingProps) {
+    var self = this;
+    return function (_ref4) {
+      var _ref4$state = _ref4.state,
+          state = _ref4$state === void 0 ? self : _ref4$state,
+          props = _objectWithoutPropertiesLoose(_ref4, ["state"]);
+
+      return /*#__PURE__*/React.createElement(state.Bound, _extends({}, bindingProps, props));
     };
-  }
+  };
 
-  useCurrentTarget() {
-    const {
-      target
-    } = this[useTargetContext]();
+  _proto.useCurrentTarget = function useCurrentTarget() {
+    var _this$useTargetContex5 = this[useTargetContext](),
+        target = _this$useTargetContex5.target;
+
     return target;
-  }
+  };
 
-  useCurrentPath() {
-    const {
-      path
-    } = this[useTargetContext]();
+  _proto.useCurrentPath = function useCurrentPath() {
+    var _this$useTargetContex6 = this[useTargetContext](),
+        path = _this$useTargetContex6.path;
+
     return path;
-  }
+  };
 
-}
+  return State;
+}();
 
-function Bound({
-  component = /*#__PURE__*/React.createElement("input", null),
-  property,
-  defaultValue,
-  transformIn,
-  transformOut,
-  extract,
-  attribute,
-  event,
-  target,
-  ...other
-}) {
-  const Component = component && component.type || Dummy;
-  const props = component && component.props || {};
-  const extraProps = this.useBinding(property, {
-    defaultValue,
-    transformIn,
-    transformOut,
-    extract,
-    attribute,
-    event,
-    target
+function Bound(_ref5) {
+  var _ref5$component = _ref5.component,
+      component = _ref5$component === void 0 ? /*#__PURE__*/React.createElement("input", null) : _ref5$component,
+      property = _ref5.property,
+      defaultValue = _ref5.defaultValue,
+      transformIn = _ref5.transformIn,
+      transformOut = _ref5.transformOut,
+      extract = _ref5.extract,
+      attribute = _ref5.attribute,
+      event = _ref5.event,
+      target = _ref5.target,
+      other = _objectWithoutPropertiesLoose(_ref5, ["component", "property", "defaultValue", "transformIn", "transformOut", "extract", "attribute", "event", "target"]);
+
+  var Component = component && component.type || Dummy;
+  var props = component && component.props || {};
+  var extraProps = this.useBinding(property, {
+    defaultValue: defaultValue,
+    transformIn: transformIn,
+    transformOut: transformOut,
+    extract: extract,
+    attribute: attribute,
+    event: event,
+    target: target
   });
-  return /*#__PURE__*/React.createElement(Component, Object.assign({}, extraProps, props, other));
+  return /*#__PURE__*/React.createElement(Component, _extends({}, extraProps, props, other));
 }
 
 Bound.propTypes = {
@@ -1580,43 +1944,62 @@ Bound.defaultProps = {
   component: /*#__PURE__*/React.createElement("input", null)
 };
 
-function recurseSet(newValue, target, path = []) {
-  for (let [key, updatedValue] of Object.entries(newValue)) {
+function recurseSet(newValue, target, path) {
+  if (path === void 0) {
+    path = [];
+  }
+
+  for (var _i = 0, _Object$entries = Object.entries(newValue); _i < _Object$entries.length; _i++) {
+    var _Object$entries$_i = _Object$entries[_i],
+        key = _Object$entries$_i[0],
+        updatedValue = _Object$entries$_i[1];
+
     if (typeof updatedValue === 'object') {
-      recurseSet(updatedValue, get(target, key, {}), [...path, key]);
+      recurseSet(updatedValue, get(target, key, {}), [].concat(path, [key]));
     } else {
       set(target, key, updatedValue);
-      emit(target, path, `${key}`, updatedValue);
+      emit(target, path, "" + key, updatedValue);
     }
   }
 }
 
-function Bind({
-  target,
-  property = "",
-  onChange = () => {},
-  children
-}) {
-  const self = this;
-  const innerId = React.useRef(refreshId++);
-  let {
-    target: existingTarget,
-    path
-  } = this[useTargetContext]();
+function Bind(_ref6) {
+  var target = _ref6.target,
+      _ref6$property = _ref6.property,
+      property = _ref6$property === void 0 ? "" : _ref6$property,
+      _ref6$onChange = _ref6.onChange,
+      onChange = _ref6$onChange === void 0 ? function () {} : _ref6$onChange,
+      children = _ref6.children;
+  var self = this;
+  var innerId = React.useRef(refreshId++);
+
+  var _this$useTargetContex7 = this[useTargetContext](),
+      existingTarget = _this$useTargetContex7.target,
+      path = _this$useTargetContex7.path;
 
   if (target && !targetIds.has(target)) {
     targetIds.set(target, nextId++);
-    path = [`${targetIds.get(target)}`];
+    path = ["" + targetIds.get(target)];
   } else if (target) {
-    path = [`${targetIds.get(target)}`];
+    path = ["" + targetIds.get(target)];
   } else {
     target = existingTarget;
   }
 
-  const [finalTarget, setFinalTarget] = React.useState(target);
-  useEvent(`${targetIds.get(finalTarget)}`, update);
-  useEvent(getPatterns(finalTarget, [...path, ...getPath(property)]).map(p => `${p}.**`), () => onChange(finalTarget));
-  const [subTarget,,, id] = this.useState(property, {}, finalTarget);
+  var _React$useState = React.useState(target),
+      finalTarget = _React$useState[0],
+      setFinalTarget = _React$useState[1];
+
+  useEvent("" + targetIds.get(finalTarget), update);
+  useEvent(getPatterns(finalTarget, [].concat(path, getPath(property))).map(function (p) {
+    return p + ".**";
+  }), function () {
+    return onChange(finalTarget);
+  });
+
+  var _this$useState = this.useState(property, {}, finalTarget),
+      subTarget = _this$useState[0],
+      id = _this$useState[3];
 
   if (Array.isArray(subTarget)) {
     return /*#__PURE__*/React.createElement(ArrayContents, {
@@ -1625,10 +2008,10 @@ function Bind({
   } else {
     if (typeof subTarget !== 'object') throw new Error("You must bind to an object or an array");
     return /*#__PURE__*/React.createElement(this.context.Provider, {
-      key: `${id}:${innerId.current}`,
+      key: id + ":" + innerId.current,
       value: {
         target: subTarget,
-        path: [...path, ...getPath(property)]
+        path: [].concat(path, getPath(property))
       }
     }, children);
   }
@@ -1640,9 +2023,9 @@ function Bind({
   }
 
   function ArrayContents() {
-    let output = [];
+    var output = [];
 
-    for (let i = 0; i < subTarget.length; i++) {
+    for (var i = 0; i < subTarget.length; i++) {
       output.push( /*#__PURE__*/React.createElement(Item, {
         key: i,
         index: i
@@ -1652,11 +2035,10 @@ function Bind({
     return output;
   }
 
-  function Item({
-    index
-  }) {
+  function Item(_ref7) {
+    var index = _ref7.index;
     return /*#__PURE__*/React.createElement(self.Bind, {
-      property: `${property}.${index}`
+      property: property + "." + index
     }, children);
   }
 }
@@ -1668,31 +2050,62 @@ Bind.propTypes = {
   target: propTypes.object
 };
 Bind.defaultProps = {
-  onChange: () => {},
+  onChange: function onChange() {},
   property: ""
 };
 
 function sortByExtraction(extract) {
   return function (a, b) {
-    const va = extract(a);
-    const vb = extract(b);
+    var va = extract(a);
+    var vb = extract(b);
     return vb > va ? -1 : va === vb ? 0 : 1;
   };
 }
-const inPriorityOrder = sortByExtraction(v => v.priority || 0);
+var inPriorityOrder = sortByExtraction(function (v) {
+  return v.priority || 0;
+});
 
-class Cancel {
-  constructor(message) {
-    this.name = "Cancel";
-    this.message = message;
-    this.stack = new Error().stack;
+var _marked = /*#__PURE__*/regeneratorRuntime.mark(using);
+var raiseAsync = function raiseAsync(event) {
+  for (var _len3 = arguments.length, params = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+    params[_key3 - 1] = arguments[_key3];
   }
 
-}
+  try {
+    var _exit2 = false;
 
-const Framework = window.Framework = window.Framework || {};
-let events = new Events({
-  storeHandlers: handlers => handlers.sort(inPriorityOrder)
+    var _temp2 = _catch(function () {
+      var _events2;
+
+      return Promise.resolve((_events2 = events).emitAsync.apply(_events2, [event].concat(params))).then(function () {});
+    }, function (e) {
+      if (e instanceof Cancel) {
+        _exit2 = true;
+        return params;
+      }
+
+      throw e;
+    });
+
+    return Promise.resolve(_temp2 && _temp2.then ? _temp2.then(function (_result) {
+      return _exit2 ? _result : params;
+    }) : _exit2 ? _temp2 : params);
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+
+var Cancel = function Cancel(message) {
+  this.name = "Cancel";
+  this.message = message;
+  this.stack = new Error().stack;
+};
+
+var Framework = window.Framework = window.Framework || {};
+var events = new Events({
+  storeHandlers: function storeHandlers(handlers) {
+    return handlers.sort(inPriorityOrder);
+  }
 });
 function setEventSource(newSource) {
   events = newSource;
@@ -1701,7 +2114,7 @@ function stopPropagationAndExit() {
   throw new Cancel();
 }
 function useEvent$1(pattern, handler, priority) {
-  React.useEffect(() => {
+  React.useEffect(function () {
     return handle(pattern, handler, priority);
   });
 }
@@ -1712,7 +2125,11 @@ function handle(pattern, handler, priority) {
     events.off(pattern, handler);
   };
 }
-function once(pattern, handler, priority, timeout = 0) {
+function once(pattern, handler, priority, timeout) {
+  if (timeout === void 0) {
+    timeout = 0;
+  }
+
   handler.priority = priority;
   events.once(pattern, handler);
 
@@ -1726,12 +2143,24 @@ function once(pattern, handler, priority, timeout = 0) {
     events.off(pattern, handler);
   }
 }
-function raiseLater(event, ...params) {
-  setTimeout(() => raise(event, ...params));
+function raiseLater(event) {
+  for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    params[_key - 1] = arguments[_key];
+  }
+
+  setTimeout(function () {
+    return raise.apply(void 0, [event].concat(params));
+  });
 }
-function raise(event, ...params) {
+function raise(event) {
+  for (var _len2 = arguments.length, params = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    params[_key2 - 1] = arguments[_key2];
+  }
+
   try {
-    events.emit(event, ...params);
+    var _events;
+
+    (_events = events).emit.apply(_events, [event].concat(params));
   } catch (e) {
     if (e instanceof Cancel) {
       return params;
@@ -1742,59 +2171,62 @@ function raise(event, ...params) {
 
   return params;
 }
-async function raiseAsync(event, ...params) {
-  try {
-    await events.emitAsync(event, ...params);
-  } catch (e) {
-    if (e instanceof Cancel) {
-      return params;
+function using(fn) {
+  var handlers, addHandler;
+  return regeneratorRuntime.wrap(function using$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          addHandler = function _addHandler(event, handler) {
+            handlers.push({
+              event: event,
+              handler: handler
+            });
+            events.on(event, handler);
+          };
+
+          handlers = [];
+          _context.prev = 2;
+          return _context.delegateYield(fn(addHandler), "t0", 4);
+
+        case 4:
+          _context.prev = 4;
+          handlers.forEach(function (_ref) {
+            var event = _ref.event,
+                handler = _ref.handler;
+            events.off(event, handler);
+          });
+          return _context.finish(4);
+
+        case 7:
+        case "end":
+          return _context.stop();
+      }
     }
-
-    throw e;
-  }
-
-  return params;
+  }, _marked, null, [[2,, 4, 7]]);
 }
-function* using(fn) {
-  const handlers = [];
+function Socket(_ref2) {
+  var _ref2$filter = _ref2.filter,
+      filter = _ref2$filter === void 0 ? returnValue$1 : _ref2$filter,
+      type = _ref2.type,
+      children = _ref2.children,
+      props = _objectWithoutPropertiesLoose(_ref2, ["filter", "type", "children"]);
 
-  try {
-    yield* fn(addHandler);
-  } finally {
-    handlers.forEach(({
-      event,
-      handler
-    }) => {
-      events.off(event, handler);
-    });
-  }
-
-  function addHandler(event, handler) {
-    handlers.push({
-      event,
-      handler
-    });
-    events.on(event, handler);
-  }
-}
-function Socket({
-  filter = returnValue$1,
-  type,
-  children,
-  ...props
-}) {
-  let [items] = raise(`ui-plug.${type}`, [children && {
+  var _raise = raise("ui-plug." + type, [children && {
     Component: Children,
     priority: 100
-  }], props);
+  }], props),
+      items = _raise[0];
+
   items = items.filter(Boolean);
   items.sort(inPriorityOrder);
-  raise(`ui-render-plugs.${type}`, items);
-  return /*#__PURE__*/React.createElement(Fragment, null, filter(items).map(({
-    Component
-  }, index) => /*#__PURE__*/React.createElement(Component, Object.assign({
-    key: index
-  }, props))));
+  raise("ui-render-plugs." + type, items);
+  return /*#__PURE__*/React.createElement(Fragment, null, filter(items).map(function (_ref3, index) {
+    var Component = _ref3.Component;
+    return /*#__PURE__*/React.createElement(Component, _extends({
+      key: index
+    }, props));
+  }));
 
   function Children() {
     return children;
@@ -1809,7 +2241,9 @@ function bestOnly(items) {
 }
 function lessThan(value) {
   return function (items) {
-    return items.length < 2 ? items : items.filter(i => i.priority < value);
+    return items.length < 2 ? items : items.filter(function (i) {
+      return i.priority < value;
+    });
   };
 }
 
@@ -1817,31 +2251,41 @@ function returnValue$1(value) {
   return value;
 }
 
-function plug(type, predicate, Component, priority = 0) {
+function plug(type, predicate, Component, priority) {
+  if (priority === void 0) {
+    priority = 0;
+  }
+
   if (typeof Component === "number") {
     priority = Component;
     Component = predicate;
 
-    predicate = () => priority;
+    predicate = function predicate() {
+      return priority;
+    };
   } else if (Component === undefined) {
     Component = predicate;
 
-    predicate = () => priority;
+    predicate = function predicate() {
+      return priority;
+    };
   }
 
-  handle(`ui-plug.${type}`, function (list, props) {
-    const priority = predicate(props, list);
+  handle("ui-plug." + type, function (list, props) {
+    var priority = predicate(props, list);
 
     if (priority) {
       list.push({
-        Component,
-        priority
+        Component: Component,
+        priority: priority
       });
     }
   });
 }
 function ensureArray$1(item) {
-  return Array.isArray(item) ? item : [item].filter(f => f !== undefined);
+  return Array.isArray(item) ? item : [item].filter(function (f) {
+    return f !== undefined;
+  });
 }
 
 export { Events, Socket, bestOnly, createState, ensureArray$1 as ensureArray, events, handle, lessThan, once, plug, raise, raiseAsync, raiseLater, setEventSource, stopPropagationAndExit, useEvent$1 as useEvent, using };

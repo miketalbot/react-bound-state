@@ -52,6 +52,7 @@ declare class State {
      * @returns an object containing the specified value and change function
      */
     useBinding(property: string, defaultValue?: any, transformIn?: TransformValue, transformOut?: TransformValue, extract?: Extractor, attribute?: string, event?: string, target?: any): any;
+
     /**
      * Provides access to information in the state that will be updated
      * any time a state change would affect it
@@ -67,6 +68,7 @@ declare class State {
      * @returns an array containing the state value and an update function
      */
     useState(property: string, defaultValue?: any, target?: any): any[];
+
     /**
      * Returns a bound component, the properties of the bound
      * component are extended on use
@@ -83,12 +85,14 @@ declare class State {
      * @returns a bound component
      */
     bind(bindingProps: BoundProps): (...params: any[]) => any;
+
     /**
      * Causes the caller to refresh if any of the paths change
      * @param {Array.<string>|string} paths - the paths to refresh on
      * @returns {number} the current unique id of the refresh
      */
     useRefresh(...paths: string[]): number;
+
     /**
      * Returns the current target of the the context
      * @example
@@ -97,11 +101,13 @@ declare class State {
      * @returns the target
      */
     useCurrentTarget(): any;
+
     /**
      * Returns the current path of the context
      * @returns the current path to the bound target
      */
     useCurrentPath(): string[];
+
     /**
      * Returns a component bound to the state model
      * @example
@@ -113,6 +119,7 @@ declare class State {
      * @returns a component to be rendered
      */
     Bound(props: BoundProps): (...params: any[]) => any;
+
     /**
      * A binding target, linking the state to an object
      * @example
@@ -128,6 +135,14 @@ declare class State {
      * @returns the JS component
      */
     Bind(props: BindProps): (...params: any[]) => any;
+
+    /**
+     * Returns a setter for properties
+     * @param {string} property - the property to set
+     * @param {any} [target] - an override for the current value
+     * @returns {Function} - a value to set other values
+     */
+    useSetter(property: string, target: any): (any) => void;
 }
 
 /**
