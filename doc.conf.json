@@ -1,0 +1,22 @@
+{
+    "plugins": ["better-docs/component"],
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc", "closure"]
+    },
+    "source": {
+        "include": ["src/lib/observable-state.js"]
+    },
+    "opts": {
+        "destination": "./docs/",
+        "recurse": true,
+        "encoding": "utf8",
+        "readme": "./README.md",
+        "template": "node_modules/better-docs"
+    },
+    "templates": {
+        "better-docs": {
+            "name": "react-bound-state"
+        }
+    }
+}

@@ -13,15 +13,43 @@ npm install --save react-bound-state
 ## Usage
 
 ```jsx
-import React, { Component } from 'react'
+import React from "react"
+import { createState } from "react-bound-state"
+import { Grid, CssBaseline, Container, Box, TextField } from "@material-ui/core"
 
-import MyComponent from 'react-bound-state'
-import 'react-bound-state/dist/index.css'
+const state = createState("global")
+const { Bind, bind } = state
+const Input = bind({ component: <TextField variant="outlined" /> })
+const stateObject = { title: "global" }
 
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
+function App() {
+    return (
+        <Bind target={stateObject}>
+            <CssBaseline />
+            <Container>
+                <Inner />
+            </Container>
+        </Bind>
+    )
+}
+
+function Inner() {
+    return (
+        <Box p={1}>
+            <Grid container spacing={2}>
+                <Grid item>
+                    <Input property="title" label="title" />
+                </Grid>
+                <Grid item>
+                    <Input
+                        property="somethingElse"
+                        label="other"
+                        defaultValue=""
+                    />
+                </Grid>
+            </Grid>
+        </Box>
+    )
 }
 ```
 
