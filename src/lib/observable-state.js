@@ -25,6 +25,8 @@ function Dummy({ children }) {
     return <>{children}</>
 }
 
+function noop() {}
+
 /**
  * @callback TransformValue
  * @param {any} value - the value to be transformed
@@ -137,11 +139,20 @@ class State {
             update
         )
         const [, refresh] = useState(-1)
+        const currentRefresh = useRef()
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = noop
+            }
+        }, [])
+
+        currentRefresh.current = refresh
+
         return { [attribute]: value.current, [event]: updateValue }
 
         function update() {
             value.current = transformIn(get(target, property, defaultValue))
-            refresh(refreshId++)
+            currentRefresh.current(refreshId++)
         }
 
         function updateValue(...params) {
@@ -193,6 +204,12 @@ class State {
         const value = get(target, property, defaultValue)
         const [id, refresh] = useState(-1)
         const currentRefresh = useRef()
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = noop
+            }
+        }, [])
+
         currentRefresh.current = refresh
         useEvent(getPatterns(target, [...path, ...getPath(property)]), update)
         updateValue.set = updateMany
@@ -260,6 +277,11 @@ class State {
         const [id, refresh] = useState(-1)
         const currentRefresh = useRef()
         currentRefresh.current = refresh
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = noop
+            }
+        }, [])
 
         const patterns = []
         for (let p of paths.flat(Infinity)) {
@@ -450,7 +472,11 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
     const [finalTarget, setFinalTarget] = React.useState(target)
     const currentTarget = useRef()
     currentTarget.current = setFinalTarget
-
+    React.useEffect(() => {
+        return () => {
+            currentTarget.current = noop
+        }
+    }, [])
     useEvent(`${targetIds.get(finalTarget)}`, update)
     let updatedPath = [...path, ...getPath(property)]
     useEvent(

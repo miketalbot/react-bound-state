@@ -1709,6 +1709,8 @@ function Dummy(_ref) {
   return /*#__PURE__*/React.createElement(Fragment, null, children);
 }
 
+function noop() {}
+
 function createState(name) {
   return new State(name);
 }
@@ -1775,11 +1777,18 @@ var State = /*#__PURE__*/function () {
     var _useState2 = useState(-1),
         refresh = _useState2[1];
 
+    var currentRefresh = useRef();
+    React.useEffect(function () {
+      return function () {
+        currentRefresh.current = noop;
+      };
+    }, []);
+    currentRefresh.current = refresh;
     return _ref3 = {}, _ref3[attribute] = value.current, _ref3[event] = updateValue, _ref3;
 
     function update() {
       value.current = transformIn(get(target, property, defaultValue));
-      refresh(refreshId++);
+      currentRefresh.current(refreshId++);
     }
 
     function updateValue() {
@@ -1831,6 +1840,11 @@ var State = /*#__PURE__*/function () {
         refresh = _useState3[1];
 
     var currentRefresh = useRef();
+    React.useEffect(function () {
+      return function () {
+        currentRefresh.current = noop;
+      };
+    }, []);
     currentRefresh.current = refresh;
     useEvent(getPatterns(target, [].concat(path, getPath(property))), update);
     updateValue.set = updateMany;
@@ -1899,6 +1913,11 @@ var State = /*#__PURE__*/function () {
 
     var currentRefresh = useRef();
     currentRefresh.current = refresh;
+    React.useEffect(function () {
+      return function () {
+        currentRefresh.current = noop;
+      };
+    }, []);
     var patterns = [];
 
     for (var _len = arguments.length, paths = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -2037,6 +2056,11 @@ function Bind(_ref6) {
 
   var currentTarget = useRef();
   currentTarget.current = setFinalTarget;
+  React.useEffect(function () {
+    return function () {
+      currentTarget.current = noop;
+    };
+  }, []);
   useEvent("" + targetIds.get(finalTarget), update);
   var updatedPath = [].concat(path, getPath(property));
   useEvent(getPatterns(finalTarget, updatedPath).map(function (p) {

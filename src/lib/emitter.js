@@ -27,18 +27,22 @@ const handlers = []
  */
 
 /**
+ * @interface ConstructorParams
+ * @property {string} [delimiter=.] - a character which delimits parts of an event pattern
+ * @property {string} [wildcard=*] - a wildcard indicator used to handle any parts of a pattern
+ * @property {HandlePreparer} [prepareHandlers=v=>v] - a function to modify the handlers just before raising,
+ * this is the combined set of all of the handlers that will be raised.
+ * @property {HandlePreparer} [storeHandlers=v=>v] - a function to modify or sort the handlers before storing,
+
+ */
+
+/**
  * Event emitter with wild card support and delimited entries.
  */
 export class Events {
     /**
      * Constructs an event emitter
-     * @param {string} [delimiter=.] - a character which delimits parts of an event pattern
-     * @param {string} [wildcard=*] - a wildcard indicator used to handle any parts of a pattern
-     * @param {HandlePreparer} [prepareHandlers=v=>v] - a function to modify the handlers just before raising,
-     * this is the combined set of all of the handlers that will be raised.
-     * @param {HandlePreparer} [storeHandlers=v=>v] - a function to modify or sort the handlers before storing,
-     * this is the array of handlers stored for the specific event pattern, it will not contain every handler
-     * that is raised for the event, as that may contain other wildcards at the time.
+     * @param {ConstructorParams} [props] - parameters to configure the emitter
      */
     constructor({
         delimiter = ".",
