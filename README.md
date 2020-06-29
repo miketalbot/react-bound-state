@@ -70,7 +70,7 @@ function Inner() {
 
 ## Demo
 
-[CodeSandbox demo is available here.](https://codesandbox.io/s/6wqmq)
+[CodeSandbox demo is available here.](https://codesandbox.io/s/react-bound-state-6wqmq?file=/src/App.js)
 
 The demonstration logs when core components are redrawn, as you will see, redraws are kept to a bare minimum.
 
