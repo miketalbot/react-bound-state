@@ -82,7 +82,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -115,6 +115,12 @@ import {
 let stateId = 0
 let nextId = 0
 let refreshId = 0
+
+const IndexContext = React.createContext(0)
+
+export function useIndex() {
+    return useContext(IndexContext)
+}
 
 function Dummy({ children }) {
     return &lt;>{children}&lt;/>
@@ -168,6 +174,19 @@ function emit(target, path, property, value) {
     )
 }
 
+function getTargetFrom(property, target, path, stack) {
+    for (let i = 0; i &lt; property.length &amp;&amp; i &lt; stack.length - 1; i++) {
+        if (property[i] === "^") {
+            let step = stack[stack.length - 2 - i]
+            target = step.target
+            path = step.path
+        } else {
+            break
+        }
+    }
+    return [property.replace(/^\^*/g, ""), target, path]
+}
+
 const useTargetContext = Symbol("useTargetContext")
 
 /**
@@ -209,11 +228,15 @@ class State {
             target
         } = {}
     ) {
-        const { target: existingTarget, path } = this[useTargetContext]()
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
         target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
         const value = useRef(transformIn(get(target, property, defaultValue)))
 
-        useEvent(getPatterns(target, [...path, ...getPath(property), '**']), update)
+        useEvent(
+            getPatterns(target, [...path, ...getPath(property), "**"]),
+            update
+        )
         const [, refresh] = useState(-1)
         return { [attribute]: value.current, [event]: updateValue }
 
@@ -232,7 +255,11 @@ class State {
     constructor(name) {
         this.name = name
         this.id = stateId++
-        this.context = React.createContext({ target: null, path: [] })
+        this.context = React.createContext({
+            target: null,
+            path: [],
+            stack: []
+        })
 
         this.Bind = this.Bind.bind(this)
         this.Bound = this.Bound.bind(this)
@@ -261,20 +288,23 @@ class State {
      * }
      */
     useState(property = "", defaultValue, target) {
-        const { target: existingTarget, path } = this[useTargetContext]()
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
         target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
         const value = get(target, property, defaultValue)
         const [id, refresh] = useState(-1)
+        const currentRefresh = useRef()
+        currentRefresh.current = refresh
         useEvent(getPatterns(target, [...path, ...getPath(property)]), update)
         updateValue.set = updateMany
         return [value, updateValue, id]
 
         function update() {
-            refresh(refreshId++)
+            currentRefresh.current(refreshId++)
         }
 
         function updateValue(newValue) {
-            if(typeof newValue === 'function') {
+            if (typeof newValue === "function") {
                 newValue = newValue(get(target, property, defaultValue))
             }
             set(target, property, newValue)
@@ -284,7 +314,6 @@ class State {
         function updateMany(newValue) {
             recurseSet(newValue, value, [...path, ...getPath(property)])
         }
-
     }
 
     /**
@@ -300,13 +329,14 @@ class State {
      * @returns {Setter} - a value to set other values
      */
     useSetter(property = "", target) {
-        const { target: existingTarget, path } = this[useTargetContext]()
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
         target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
         updateValue.set = updateMany
         return updateValue
 
         function updateValue(newValue) {
-            if (typeof newValue === 'function') {
+            if (typeof newValue === "function") {
                 newValue = newValue(get(target, property))
             }
             set(target, property, newValue)
@@ -314,9 +344,11 @@ class State {
         }
 
         function updateMany(newValue) {
-            recurseSet(newValue, get(target, property, {}), [...path, ...getPath(property)])
+            recurseSet(newValue, get(target, property, {}), [
+                ...path,
+                ...getPath(property)
+            ])
         }
-
     }
 
     /**
@@ -327,14 +359,17 @@ class State {
     useRefresh(...paths) {
         const { target, path } = this[useTargetContext]()
         const [id, refresh] = useState(-1)
+        const currentRefresh = useRef()
+        currentRefresh.current = refresh
+
         const patterns = []
-        for(let p of paths.flat(Infinity)) {
+        for (let p of paths.flat(Infinity)) {
             patterns.push(...getPatterns(target, [...path, ...getPath(p)]))
         }
         useEvent(Array.from(new Set(patterns)), update)
         return id
         function update() {
-            refresh(refreshId++)
+            currentRefresh.current(refreshId++)
         }
     }
 
@@ -459,7 +494,7 @@ Bound.defaultProps = {
 
 function recurseSet(newValue, target, path = []) {
     for (let [key, updatedValue] of Object.entries(newValue)) {
-        if (typeof updatedValue === 'object') {
+        if (typeof updatedValue === "object" &amp;&amp; !Array.isArray(updatedValue)) {
             recurseSet(updatedValue, get(target, key, {}), [...path, key])
         } else {
             set(target, key, updatedValue)
@@ -467,7 +502,6 @@ function recurseSet(newValue, target, path = []) {
         }
     }
 }
-
 
 /**
  * Used to notify of events
@@ -505,7 +539,7 @@ function recurseSet(newValue, target, path = []) {
 function Bind({ target, property = "", onChange = () => {}, children }) {
     const self = this
     const innerId = React.useRef(refreshId++)
-    let { target: existingTarget, path } = this[useTargetContext]()
+    let { target: existingTarget, path, stack } = this[useTargetContext]()
     if (target &amp;&amp; !targetIds.has(target)) {
         targetIds.set(target, nextId++)
         path = [`${targetIds.get(target)}`]
@@ -515,24 +549,28 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
         target = existingTarget
     }
     const [finalTarget, setFinalTarget] = React.useState(target)
+    const currentTarget = useRef()
+    currentTarget.current = setFinalTarget
+
     useEvent(`${targetIds.get(finalTarget)}`, update)
+    let updatedPath = [...path, ...getPath(property)]
     useEvent(
-        getPatterns(finalTarget, [...path, ...getPath(property)]).map(
-            (p) => `${p}.**`
-        ),
+        getPatterns(finalTarget, updatedPath).map((p) => `${p}.**`),
         () => onChange(finalTarget)
     )
     const [subTarget, , , id] = this.useState(property, {}, finalTarget)
     if (Array.isArray(subTarget)) {
         return &lt;ArrayContents key={id} />
     } else {
-        if(typeof subTarget !== 'object') throw new Error("You must bind to an object or an array")
+        if (typeof subTarget !== "object")
+            throw new Error("You must bind to an object or an array")
         return (
             &lt;this.context.Provider
                 key={`${id}:${innerId.current}`}
                 value={{
                     target: subTarget,
-                    path: [...path, ...getPath(property)]
+                    path: updatedPath,
+                    stack: [...stack, { target: subTarget, path: updatedPath }]
                 }}
             >
                 {children}
@@ -543,7 +581,7 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
     function update(newValue) {
         targetIds.set(newValue, targetIds.get(target))
         innerId.current = refreshId++
-        setFinalTarget(newValue)
+        currentTarget.current(newValue)
     }
 
     function ArrayContents() {
@@ -556,7 +594,11 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
 
     function Item({ index }) {
         return (
-            &lt;self.Bind property={`${property}.${index}`}>{children}&lt;/self.Bind>
+            &lt;IndexContext.Provider value={index}>
+                &lt;self.Bind property={`${property}.${index}`}>
+                    {children}
+                &lt;/self.Bind>
+            &lt;/IndexContext.Provider>
         )
     }
 }

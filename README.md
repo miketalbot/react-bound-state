@@ -4,7 +4,7 @@
 
 [![NPM](https://img.shields.io/npm/v/react-bound-state.svg)](https://www.npmjs.com/package/react-bound-state) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-#TL;DR
+# TL;DR
 
 -   Managing state in React has all sorts of solutions from `useContext` and `useState` to Redux. However, all of these methods lack a truly declarative style.
 -   I wanted a cleaner way to write code that manages global and document level scoped state. I also wanted a way to write code to update state where it makes the most sense to me - next to the thing it affects. Writing code in this way enables better modularisation and separation of concerns.
@@ -67,16 +67,17 @@ function Inner() {
 
 [API Docs](https://miketalbot.github.io/react-bound-state/)
 
-[Demo](https://miketalbot.github.io/react-bound-state/example)
 
 
-##Demo
+## Demo
 
 [CodeSandbox demo is available here.](https://6wqmq.csb.app/)
 
 The demonstration logs when core components are redrawn, as you will see, redraws are kept to a bare minimum.
 
-##Why?
+[The same demo built as a website.](https://miketalbot.github.io/react-bound-state/example)
+
+## Why?
 
 I build apps that predominantly manage documents, and I want to write declarative code that follows [SOLID](https://en.wikipedia.org/wiki/SOLID) principles. Adhering to SOLID principles ensures that the solutions I make can be easily maintained, developed, and extended.
 
@@ -233,7 +234,7 @@ Here we've bound `globalState` to a document and `styleState` to a set of style 
 
 You can see the `onChange()` handler which is called any time any property of the model changes. In the demo case, it is wired to a denounced function that stores the current state in localStorage.
 
-###Accessing properties of the state
+### Accessing properties of the state
 
 Once bound, we can use the functions of the `state` and _property syntax_ to retrieve values, set values, and be refreshed when the value changes, no matter what made the change.
 
@@ -256,7 +257,7 @@ const [name, setName] = globalState.useState("some.sub.object.name")
 
 Property syntax works the same way as lodash/underscore/sugarjs get/set methods. We can replace array accessors [] with . if we like.
 
-###Binding using property syntax
+### Binding using property syntax
 
 To facilitate a much easier interface constructor, the `<Bind/>` component also allows us to use `property` rather than `target` to focus on a subsection of the model.
 
@@ -357,7 +358,7 @@ function Todo() {
 
 Here we can see that the `<Todo/>` accesses its state to render the card but also accesses the todos from the parent state and uses them to delete entries when the user requests it.
 
-###Refreshing
+### Refreshing
 
 The elements of the UI redraw if we have used a bound component or a useState(), and the property or any of its direct ancestors change.
 
@@ -390,7 +391,7 @@ updateStyle.set({ background: "red", color: "white" })
 updateStyle({ color: "blue" })
 ```
 
-#How it works
+# How it works
 
 The whole system is predicated off React hooks combined with a super-fast wildcard based, custom event emitter. The system uses Inversion of Control to announce updates to the model and then it loosely couples listeners that react and cause the relevant parts of the UI to redraw.
 
@@ -511,7 +512,7 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
 
 Bind, on the other hand, handles using an object, which it stores in the context, in addition to providing the facility for notifying its owner when things have changed.
 
-#Conclusion
+# Conclusion
 
 I've presented a compelling way of binding data to "contextual" and global scope. It composes in a very natural way and has the additional benefit of providing data binding for React components. As the demonstration project proves, redrawing is minimised.
 
