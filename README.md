@@ -12,7 +12,6 @@
 -   I've built a brand new library, documentation, and a demonstration that you can use to explore the solution that I arrived at given the objectives above. The library makes extensive use of Hooks. react-bound-state is MIT licensed.
 -   The react-bound-state library is based on the live version in the commercial software I build for a day job but it has been refined, simplified, and improved.
 -   I go on to describe how to use the technique and how it works internally below.
--   The library [GitHub](https://github.com/miketalbot/react-bound-state) page provides access to the API documentation.
 
 ## Install
 
