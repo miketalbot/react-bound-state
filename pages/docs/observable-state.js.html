@@ -82,7 +82,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#Extractor">Extractor</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#TransformValue">TransformValue</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -99,7 +99,7 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import PropTypes from "prop-types"
+            <pre class="prettyprint source linenums"><code>import PropTypes from 'prop-types'
 import React, { useContext, useRef, useState } from "react"
 import { get, set } from "./get-set"
 import {
@@ -126,14 +126,17 @@ function Dummy({ children }) {
     return &lt;>{children}&lt;/>
 }
 
+function noop() {}
+noop.refresh = noop
+
 /**
- * @callback TransformValue
+ * @function TransformValue
  * @param {any} value - the value to be transformed
  * @returns {any} the transformed value
  */
 
 /**
- * @callback Extractor
+ * @function Extractor
  * @param {any} event - the parameter of the event handler
  * @returns {any} the extracted value
  */
@@ -205,10 +208,13 @@ class State {
      * @param {any} [defaultValue] - the default value for the property
      * @param {TransformValue} [transformIn] - a function to transform inbound values
      * @param {TransformValue} [transformOut] - a function to transform outbound values
+     * @param {any} [updateOnBlur] - set if the component should only update when it blurs
      * @param {Extractor} [extract] - a function that transforms event values to real values - default
      * version will extract from event.target.value if available, otherwise the value itself
+     * @param {Function} onChange
      * @param {string} [attribute="value"] - the attribute to bind to
      * @param {string} [event="onChange"] - the event to be bound for changes
+     * @param {string} [blurEvent="onBlur"] - the event for blurring
      * @param {object} [target] - an override for the target
      * @returns {object} an object containing the specified value and change function
      * @example
@@ -222,33 +228,74 @@ class State {
             defaultValue,
             transformIn = returnValue,
             transformOut = returnValue,
+            updateOnBlur,
             extract = standardExtract,
+            onChange = noop,
             attribute = "value",
             event = "onChange",
+            blurEvent = "onBlur",
             target
         } = {}
     ) {
+        const changed = useRef(false)
         let { target: existingTarget, path, stack } = this[useTargetContext]()
         target = target || existingTarget
         ;[property, target, path] = getTargetFrom(property, target, path, stack)
         const value = useRef(transformIn(get(target, property, defaultValue)))
+        const [localValue, setLocalValue] = React.useState(value.current)
 
         useEvent(
             getPatterns(target, [...path, ...getPath(property), "**"]),
             update
         )
         const [, refresh] = useState(-1)
-        return { [attribute]: value.current, [event]: updateValue }
+        const currentRefresh = useRef()
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = noop
+            }
+        }, [])
+        setLocalValue.refresh = refresh
+        currentRefresh.current = setLocalValue
+
+        return {
+            [attribute]: localValue,
+            [event]: updateValue,
+            [blurEvent]: blur
+        }
 
         function update() {
-            value.current = transformIn(get(target, property, defaultValue))
-            refresh(refreshId++)
+            let newValue = transformIn(get(target, property, defaultValue))
+            if (newValue !== value.current) {
+                value.current = newValue
+                currentRefresh.current(value.current)
+
+            }
+            currentRefresh.current.refresh(nextId++)
         }
 
         function updateValue(...params) {
-            const newValue = transformOut(extract(...params))
-            set(target, property, newValue)
-            emit(target, path, property, newValue)
+            let currentValue = extract(...params)
+            const newValue = transformOut(currentValue)
+
+            if (updateOnBlur) {
+                value.current = newValue
+                changed.current = true
+                currentRefresh.current(currentValue)
+            } else {
+                set(target, property, newValue)
+                onChange(newValue)
+                emit(target, path, property, newValue)
+            }
+        }
+
+        function blur() {
+            if (changed.current) {
+                changed.current = false
+                set(target, property, value.current)
+                onChange(value.current)
+                emit(target, path, property, value.current)
+            }
         }
     }
 
@@ -294,6 +341,12 @@ class State {
         const value = get(target, property, defaultValue)
         const [id, refresh] = useState(-1)
         const currentRefresh = useRef()
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = noop
+            }
+        }, [])
+
         currentRefresh.current = refresh
         useEvent(getPatterns(target, [...path, ...getPath(property)]), update)
         updateValue.set = updateMany
@@ -361,6 +414,11 @@ class State {
         const [id, refresh] = useState(-1)
         const currentRefresh = useRef()
         currentRefresh.current = refresh
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = noop
+            }
+        }, [])
 
         const patterns = []
         for (let p of paths.flat(Infinity)) {
@@ -427,10 +485,12 @@ class State {
  * @property {any} [defaultValue] - a default value for the property
  * @property {TransformValue} [transformIn] - a function to transform inbound values
  * @property {TransformValue} [transformOut] - a function to transform outbound values
+ * @property {any} [updateOnBlur] - set if the component should only update when it blurs
  * @property {Extractor} [extract] - a function that transforms event values to real values - default
  * version will extract from event.target.value if available, otherwise the value itself
  * @property {string} [attribute="value"] - the attribute to bind to
  * @property {string} [event="onChange"] - the event to be bound for changes
+ * @property {string} [blurEvent="onBlur"] - the event for blurring
  * @property {object} [target] - an override for the target
  */
 
@@ -458,6 +518,8 @@ function Bound({
     transformOut,
     extract,
     attribute,
+    updateOnBlur,
+    blurEvent,
     event,
     target,
     ...other
@@ -471,25 +533,29 @@ function Bound({
         extract,
         attribute,
         event,
-        target
+        target,
+        blurEvent,
+        updateOnBlur
     })
     return &lt;Component {...extraProps} {...props} {...other} />
 }
 
 Bound.propTypes = {
-    attribute: PropTypes.string,
-    component: PropTypes.object,
-    defaultValue: PropTypes.any,
-    event: PropTypes.string,
-    extract: PropTypes.func,
-    property: PropTypes.string,
-    target: PropTypes.object,
-    transformIn: PropTypes.func,
-    transformOut: PropTypes.func
+  attribute: PropTypes.string,
+  blurEvent: PropTypes.any,
+  component: PropTypes.object,
+  defaultValue: PropTypes.any,
+  event: PropTypes.string,
+  extract: PropTypes.func,
+  property: PropTypes.string,
+  target: PropTypes.object,
+  transformIn: PropTypes.func,
+  transformOut: PropTypes.func,
+  updateOnBlur: PropTypes.any
 }
 
 Bound.defaultProps = {
-    component: &lt;input />
+  component: &lt;input />
 }
 
 function recurseSet(newValue, target, path = []) {
@@ -551,7 +617,11 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
     const [finalTarget, setFinalTarget] = React.useState(target)
     const currentTarget = useRef()
     currentTarget.current = setFinalTarget
-
+    React.useEffect(() => {
+        return () => {
+            currentTarget.current = noop
+        }
+    }, [])
     useEvent(`${targetIds.get(finalTarget)}`, update)
     let updatedPath = [...path, ...getPath(property)]
     useEvent(

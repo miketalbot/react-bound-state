@@ -80,7 +80,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#Extractor">Extractor</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#TransformValue">TransformValue</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -160,7 +160,7 @@
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line154">line 154</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line201">line 201</a>
             </span>
         </p>
     
@@ -338,7 +338,7 @@ component are extended on use
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line292">line 292</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line350">line 350</a>
             </span>
         </p>
     
@@ -525,7 +525,7 @@ function Example() {
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line419">line 419</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line485">line 485</a>
             </span>
         </p>
     
@@ -712,7 +712,7 @@ function App() {
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line336">line 336</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line396">line 396</a>
             </span>
         </p>
     
@@ -785,7 +785,7 @@ function App() {
         
         <span class="code-name">
             
-                useBinding<span class="signature">(property, defaultValue<span class="signature-attributes">opt</span>, transformIn<span class="signature-attributes">opt</span>, transformOut<span class="signature-attributes">opt</span>, extract<span class="signature-attributes">opt</span>, attribute<span class="signature-attributes">opt</span>, event<span class="signature-attributes">opt</span>, target<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span>
+                useBinding<span class="signature">(property, defaultValue<span class="signature-attributes">opt</span>, transformIn<span class="signature-attributes">opt</span>, transformOut<span class="signature-attributes">opt</span>, updateOnBlur<span class="signature-attributes">opt</span>, extract<span class="signature-attributes">opt</span>, onChange, attribute<span class="signature-attributes">opt</span>, event<span class="signature-attributes">opt</span>, blurEvent<span class="signature-attributes">opt</span>, target<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span>
             
         </span>
     </h4>
@@ -991,6 +991,45 @@ for a component
             
 <tr class="deep-level-0">
   
+      <td class="name"><code>updateOnBlur</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">any</span>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+      </td>
+  
+
+  <td class="description last">set if the component should only update when it blurs</td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
       <td class="name"><code>extract</code></td>
   
 
@@ -1023,6 +1062,43 @@ for a component
 
   <td class="description last">a function that transforms event values to real values - default
 version will extract from event.target.value if available, otherwise the value itself</td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>onChange</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">function</span>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+      </td>
+  
+
+  <td class="description last"></td>
 </tr>
 
 
@@ -1113,6 +1189,47 @@ version will extract from event.target.value if available, otherwise the value i
             
 <tr class="deep-level-0">
   
+      <td class="name"><code>blurEvent</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+      <td class="attributes">
+      
+          &lt;optional><br>
+      
+
+      
+
+      
+      </td>
+  
+
+  
+      <td class="default">
+      
+          "onBlur"
+      
+      </td>
+  
+
+  <td class="description last">the event for blurring</td>
+</tr>
+
+
+        
+
+            
+<tr class="deep-level-0">
+  
       <td class="name"><code>target</code></td>
   
 
@@ -1191,7 +1308,7 @@ version will extract from event.target.value if available, otherwise the value i
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line118">line 118</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line124">line 124</a>
             </span>
         </p>
     
@@ -1321,7 +1438,7 @@ return &lt;input {...props}/></code></pre>
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line316">line 316</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line374">line 374</a>
             </span>
         </p>
     
@@ -1443,7 +1560,7 @@ return &lt;input {...props}/></code></pre>
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line307">line 307</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line365">line 365</a>
             </span>
         </p>
     
@@ -1639,7 +1756,7 @@ const copy = JSON.parse(JSON.stringify(current))</code></pre>
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line258">line 258</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line311">line 311</a>
             </span>
         </p>
     
@@ -1857,7 +1974,7 @@ const copy = JSON.parse(JSON.stringify(current))</code></pre>
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line230">line 230</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line283">line 283</a>
             </span>
         </p>
     
@@ -2111,7 +2228,7 @@ any time a state change would affect it
         <p class="tag-source">
             <a href="observable-state.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line189">line 189</a>
+                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line236">line 236</a>
             </span>
         </p>
     

@@ -150,6 +150,7 @@ function Example() {
                 </Box>
                 <Box mt={2}>
                     <Input
+                        updateOnBlur
                         multiline
                         property={"description"}
                         label={"Description"}

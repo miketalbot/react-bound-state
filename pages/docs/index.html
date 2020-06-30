@@ -80,7 +80,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#Extractor">Extractor</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#TransformValue">TransformValue</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -119,6 +119,15 @@
 <p>Binding library for React</p>
 </blockquote>
 <p><a href="https://www.npmjs.com/package/react-bound-state"><img src="https://img.shields.io/npm/v/react-bound-state.svg" alt="NPM"></a> <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="JavaScript Style Guide"></a></p>
+<h1>TL;DR</h1>
+<ul>
+<li>Managing state in React has all sorts of solutions from <code>useContext</code> and <code>useState</code> to Redux. However, all of these methods lack a truly declarative style.</li>
+<li>I wanted a cleaner way to write code that manages global and document level scoped state. I also wanted a way to write code to update state where it makes the most sense to me - next to the thing it affects. Writing code in this way enables better modularisation and separation of concerns.</li>
+<li>I like data binding, I like having components bound to parts of the model that can automatically react to changes, it reduces boilerplate code and reduces re-renders.</li>
+<li>I've built a brand new library, documentation, and a demonstration that you can use to explore the solution that I arrived at given the objectives above. The library makes extensive use of Hooks. react-bound-state is MIT licensed.</li>
+<li>The react-bound-state library is based on the live version in the commercial software I build for a day job but it has been refined, simplified, and improved.</li>
+<li>I go on to describe how to use the technique and how it works internally below.</li>
+</ul>
 <h2>Install</h2>
 <pre class="prettyprint source lang-bash"><code>npm install --save react-bound-state
 </code></pre>
@@ -164,7 +173,368 @@ function Inner() {
 </code></pre>
 <h2>Documentation</h2>
 <p><a href="https://miketalbot.github.io/react-bound-state/">API Docs</a></p>
-<p><a href="https://miketalbot.github.io/react-bound-state/example">Demo</a></p>
+<h2>Demo</h2>
+<p><a href="https://codesandbox.io/s/react-bound-state-6wqmq?file=/src/App.js">CodeSandbox demo is available here.</a></p>
+<p>The demonstration logs when core components are redrawn, as you will see, redraws are kept to a bare minimum.</p>
+<p><a href="https://miketalbot.github.io/react-bound-state/example">The same demo built as a website.</a></p>
+<h2>Why?</h2>
+<p>I build apps that predominantly manage documents, and I want to write declarative code that follows <a href="https://en.wikipedia.org/wiki/SOLID">SOLID</a> principles. Adhering to SOLID principles ensures that the solutions I make can be easily maintained, developed, and extended.</p>
+<p>My projects frequently use React and are modern enough to be almost 100% hook based.</p>
+<p>In many web apps and systems, a single document or state will contain information that needs to be handled by many specialized components; this lends itself to creating multiple modules that participate in the editing and rendering processes. Furthermore, the same information frequently needs to be rendered by different components in alternate ways.</p>
+<p>I don't like to centralize the state management, because that makes the code very coupled and limits the ability for multiple developers to work on the same code base and reuse previously created elements.</p>
+<p>Hooks are great, but they present challenges at both the individual component level and across a broader hierarchy.</p>
+<ul>
+<li><code>useState</code> needs to be isolated to a component which can cause multiple re-renders</li>
+<li><code>useReducer</code> can also cause large parts of the interface to require updating</li>
+<li><code>useContext</code> is a blunt tool that elegantly facilitates static contextual information, but does not cope well with informing sub-elements of an interface to redraw when their state changes.</li>
+</ul>
+<pre class="prettyprint source lang-jsx"><code>function Details({ onEdited, name, description }) {
+    const [currentName, setName] = React.useState(name)
+    const [currentDescription, setDescription] = React.useState(description)
+    return (
+        &lt;div onBlur={() => onEdited(currentName, currentDescription)}>
+            &lt;input
+                value={currentName}
+                onChange={(e) => setName(e.target.value)}
+            />
+            &lt;textarea
+                rows={10}
+                value={currentDescription}
+                onChange={(e) => setDescription(e.target.value)}
+            />
+        &lt;/div>
+    )
+}
+</code></pre>
+<p><em>^ This is complex and intricate; I'd rather avoid it</em></p>
+<p>The above code renders the whole component each time with a <code>currentName</code> or <code>currentDescription</code> change. While this is insignificant here, it's part of a broader problem. In addition to that, the state must be passed into this component as a whole.</p>
+<p>I like the principles of data binding offered by Angular, Svelte, and the like, so I've built something that solves all of these problems.</p>
+<h2>react-bound-state</h2>
+<p>The new library works by using Inversion of Control implemented using a super-fast wildcard event emitter and lets us:</p>
+<ul>
+<li>Create multiple global state contexts</li>
+<li>Bind contexts to objects</li>
+<li>Have any number of components be updated when relevant state changes, but only those components</li>
+<li>Create components that are bound directly to the data model</li>
+<li>Composes in a very straightforward and obvious way</li>
+</ul>
+<p>Using the library, we can rewrite <code>Details</code> from above like this:</p>
+<pre class="prettyprint source lang-jsx"><code>function Details() {
+    return (
+        &lt;div>
+            &lt;Input property=&quot;name&quot; />
+            &lt;Input multiline property=&quot;description&quot; />
+        &lt;/div>
+    )
+}
+</code></pre>
+<h3>Working with state in react-bound-state</h3>
+<p>The first step is to create state contexts that you will then bind to objects. You will typically make a global state context for each of the things that might be in scope at the same time. In the example, we have a global state for the current document and the current settings.</p>
+<pre class="prettyprint source lang-jsx"><code>import { createState } from &quot;react-bound-state&quot;
+
+export const globalState = createState(&quot;global&quot;)
+export const styleState = createState(&quot;style&quot;)
+</code></pre>
+<h3>Binding Components</h3>
+<p>Once we've created state, we can access the methods of the state to do some useful things. For instance, we can use <code>bind</code> to create data-bound versions of standard components that we can use when building out our interface.</p>
+<pre class="prettyprint source lang-jsx"><code>import { TextField } from &quot;@material-ui/core&quot;
+
+export const Input = globalState.bind({
+    component: &lt;TextField variant={&quot;outlined&quot;} fullWidth />
+})
+</code></pre>
+<p>The code above creates an <Input/> component that uses an outlined, full-width TextField that will be bound to the current target of <code>globalState</code>.</p>
+<p>The default version of <code>bind</code> expects an <code>onChange</code> event that supports <code>event.target.value</code> or <code>value</code> directly and an input that wants <code>value</code>. We can override all of these. For instance, to create a Combo Box for the demo we use Material UI Autocomplete - this passes the current value of the component as a second parameter to <code>onChange</code> so we might declare the Combo like this:</p>
+<pre class="prettyprint source lang-jsx"><code>export const Combo = styleState.bind({
+    extract(_, value) {
+        return value
+    },
+    component: (
+        &lt;Autocomplete
+            options={[]}
+            fullWidth
+            renderInput={(params) => (
+                &lt;TextField {...params} variant=&quot;outlined&quot; />
+            )}
+        />
+    )
+})
+</code></pre>
+<p>Here we use the <code>extract</code> method that allows us to extract the current value from the <code>onChange</code> event.</p>
+<p>We have total control over the <code>attribute</code> that is used, the <code>event</code> that is fired on a change, plus we can also use <code>transformIn</code> and <code>transformOut</code> to convert data from the model to the editing component.</p>
+<p>The real benefit is we can apply any properties to the component or the underlying component on the definition or use.</p>
+<pre class="prettyprint source lang-jsx"><code>&lt;Input
+    property=&quot;some.model.property&quot;
+    transformIn={(v) => v.toUpperCase()}
+    transformOut={(v) => v.toLowerCase()}
+/>
+</code></pre>
+<p>We can also bind components inline rather than defining them up front, using the <code>&lt;Bound/&gt;</code> component exposed from the state:</p>
+<pre class="prettyprint source lang-jsx"><code>&lt;globalState.Bound
+    component={&lt;Checkbox color=&quot;primary&quot; />}
+    attribute=&quot;checked&quot;
+    property=&quot;done&quot;
+/>
+</code></pre>
+<h3>Binding the state to an object</h3>
+<p>Before we can do anything much with the components or the other properties of the state, we must bind it to a model.</p>
+<pre class="prettyprint source lang-jsx"><code>const App = () => {
+    return (
+        &lt;styleState.Bind target={styles}>
+            &lt;globalState.Bind onChange={save} target {example}>
+                &lt;Box mt={6}>
+                    &lt;Container>
+                        &lt;Example/>
+                    &lt;/Container>
+                &lt;/Box>
+            &lt;/globalState.Bind>
+        &lt;/styleState.Bind>
+    )
+}
+</code></pre>
+<p>Here we've bound <code>globalState</code> to a document and <code>styleState</code> to a set of style settings. Once bound, we can start to use the other features of the library to access values, or we can use the bound components to edit values.</p>
+<p>You can see the <code>onChange()</code> handler which is called any time any property of the model changes. In the demo case, it is wired to a denounced function that stores the current state in localStorage.</p>
+<h3>Accessing properties of the state</h3>
+<p>Once bound, we can use the functions of the <code>state</code> and <em>property syntax</em> to retrieve values, set values, and be refreshed when the value changes, no matter what made the change.</p>
+<p>To perform this, we use the following functions:</p>
+<ul>
+<li>
+<p><code>useState</code> provides access to a property of the model and causes the component to redraw should it change, it also works the same way as React.useState and provides a setter function.</p>
+</li>
+<li>
+<p><code>useBinding</code> provides an object that can be spread onto a component to provide data binding (same as the <Bound> components and <code>bind()</code> derivation function)</p>
+</li>
+<li>
+<p><code>useSetter</code> provides a method to set values for a property but does not re-render when it changes</p>
+</li>
+<li>
+<p><code>useRefresh</code> allows the component to refresh based on defined properties (this includes wildcards)</p>
+</li>
+</ul>
+<p>All of these methods end up using <em>property syntax</em>:</p>
+<pre class="prettyprint source lang-js"><code>// Access and set a name property
+const [name, setName] = globalState.useState(&quot;some.sub.object.name&quot;)
+</code></pre>
+<p>Property syntax works the same way as lodash/underscore/sugarjs get/set methods. We can replace array accessors [] with . if we like.</p>
+<h3>Binding using property syntax</h3>
+<p>To facilitate a much easier interface constructor, the <code>&lt;Bind/&gt;</code> component also allows us to use <code>property</code> rather than <code>target</code> to focus on a subsection of the model.</p>
+<pre class="prettyprint source lang-jsx"><code>&lt;Grid item md={3}>
+    &lt;Bind property={&quot;profile&quot;}>
+        &lt;Profile />
+    &lt;/Bind>
+
+    &lt;Description />
+&lt;/Grid>
+</code></pre>
+<p>Once this sub binding is made, all of the inner functions use property syntax from the new target.</p>
+<p>When we bind to a part of the model that is an array, the children of the <code>&lt;Bind/&gt;</code> will be rendered for every member of the collection.</p>
+<pre class="prettyprint source lang-jsx"><code>export function Todos() {
+    const setTodos = globalState.useSetter(&quot;todos&quot;)
+    return (
+        &lt;Box>
+            &lt;Box ml={2}>
+                &lt;Typography variant={&quot;h6&quot;} component={&quot;h1&quot;} gutterBottom>
+                    Todo List
+                &lt;/Typography>
+            &lt;/Box>
+            &lt;Box width={1} clone>
+                &lt;List>
+                    &lt;Bind property={&quot;todos&quot;}>
+                        &lt;Todo />
+                    &lt;/Bind>
+                &lt;/List>
+            &lt;/Box>
+            &lt;Box mt={2}>
+                &lt;Button color={&quot;primary&quot;} onClick={add}>
+                    + Add Todo
+                &lt;/Button>
+            &lt;/Box>
+        &lt;/Box>
+    )
+
+    function add() {
+        const newTodo = prompt(&quot;What must you do?&quot;, &quot;&quot;)
+        if (newTodo) {
+            setTodos((prev) => [
+                ...prev,
+                { title: newTodo, description: &quot;&quot;, done: false }
+            ])
+        }
+    }
+}
+</code></pre>
+<p>Here we bind the list of todos. Also, note how we use <code>useSetter</code> because the <code>&lt;Bind/&gt;</code> component knows to re-render all of the Todos when the array changes. There is no need to re-render this component. Similar to React.useState, we can either pass a value to the set function or a function that will receive the previous state; this significantly reduces re-renders.</p>
+<p>A child rendered by an array can tell its index using the <code>useIndex()</code> function exported directly from 'react-bound-state.'</p>
+<p>Sometimes in an inner component, we might want to reaccess the outer context. For instance, in the demo, a <code>&lt;Todo/&gt;</code> wants to delete itself from the array of <code>todos.</code></p>
+<p>When we have <code>&lt;Bind/&gt;</code> inside of <code>&lt;Bind/&gt;</code> as in this example, we can prepend ^ characters to property syntax to move us up to the parent.</p>
+<pre class="prettyprint source lang-jsx"><code>function Todo() {
+    const [title, setTitle] = globalState.useState(&quot;title&quot;)
+    const [done] = globalState.useState(&quot;done&quot;, false)
+    const [todos, setTodos] = globalState.useState(&quot;^todos&quot;)
+    const [me] = globalState.useState()
+    return (
+        &lt;ListItem>
+            &lt;Card className=&quot;full-width&quot; variant={&quot;outlined&quot;}>
+                &lt;CardHeader
+                    title={title}
+                    action={
+                        &lt;globalState.Bound
+                            property={&quot;done&quot;}
+                            component={&lt;Checkbox color={&quot;primary&quot;} />}
+                            attribute={&quot;checked&quot;}
+                            extract={(e) => e.target.checked}
+                        />
+                    }
+                />
+                &lt;CardContent>
+                    &lt;Input label=&quot;Notes&quot; multiline property={&quot;description&quot;} />
+                &lt;/CardContent>
+                &lt;CardActions>
+                    &lt;Button color={&quot;secondary&quot;} onClick={remove}>
+                        Delete
+                    &lt;/Button>
+                &lt;/CardActions>
+            &lt;/Card>
+        &lt;/SortableItem>
+    )
+   function remove() {
+        setTodos(todos.filter((t) => t !== me))
+    }
+</code></pre>
+<p>Here we can see that the <code>&lt;Todo/&gt;</code> accesses its state to render the card but also accesses the todos from the parent state and uses them to delete entries when the user requests it.</p>
+<h3>Refreshing</h3>
+<p>The elements of the UI redraw if we have used a bound component or a useState(), and the property or any of its direct ancestors change.</p>
+<p>e.g. <code>some.sub.module.name</code> will redraw if <code>some</code> or <code>some.sub</code> or <code>some.sub.module</code> or <code>some.sub.module.name</code> change. It won't redraw if <code>some.sub.another</code> changes of course.</p>
+<p>Sometimes, especially if we are retrieving an object (say a style), we may want to redraw if a sub-property of the thing we have retrieved changes. This is what <code>useRefresh()</code> is for and, in that case, we can also use wildcard <code>*</code> and <code>**</code> characters in the property syntax:</p>
+<pre class="prettyprint source lang-jsx"><code>const [style] = styleState.useState(&quot;some.style&quot;)
+styleState.useRefresh(&quot;some.style.**&quot;)
+return (
+    &lt;div style={{ ...style }}>
+        &lt;Content />
+    &lt;/div>
+)
+</code></pre>
+<p>The code above redraws the component if any sub-property of the style changes.</p>
+<h3>Setting data</h3>
+<p><code>useSetter()</code> and <code>useState()</code> both return functions that allow you to set the value of a part of the model. You may either mutate or use immutable data as you wish. The set functions returned by both also have a <code>.set()</code> sub-function that will set multiple properties at once from an object. These are merged into the current state.</p>
+<pre class="prettyprint source lang-js"><code>const updateStyle = styleState.useSetter(&quot;style&quot;)
+// Merge properties into the style using .set()
+updateStyle.set({ background: &quot;red&quot;, color: &quot;white&quot; })
+
+// Replace the whole style object
+updateStyle({ color: &quot;blue&quot; })
+</code></pre>
+<h1>How it works</h1>
+<p>The whole system is predicated off React hooks combined with a super-fast wildcard based, custom event emitter. The system uses Inversion of Control to announce updates to the model and then it loosely couples listeners that react and cause the relevant parts of the UI to redraw.</p>
+<p>The current value of a <code>&lt;Bind/&gt;</code> component is stored in a React Context, and useState is used as a refresh mechanism when we discover a change. We use the useEffect hook to wire up the relevant event handlers and ensure that they are correctly disposed of.</p>
+<pre class="prettyprint source lang-jsx"><code>useState(property = &quot;&quot;, defaultValue, target) {
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
+        target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
+        const value = get(target, property, defaultValue)
+        const [id, refresh] = useState(-1)
+        const currentRefresh = useRef()
+        React.useEffect(() => {
+            return () => {
+                currentRefresh.current = ()=>{}
+            }
+        }, [])
+
+        currentRefresh.current = refresh
+        useEvent(getPatterns(target, [...path, ...getPath(property)]), update)
+        return [value, updateValue, id]
+
+        function update() {
+            currentRefresh.current(refreshId++)
+        }
+
+        function updateValue(newValue) {
+            if (typeof newValue === &quot;function&quot;) {
+                newValue = newValue(get(target, property, defaultValue))
+            }
+            set(target, property, newValue)
+            emit(target, path, property, newValue)
+        }
+    }
+</code></pre>
+<p>Here you can see the <code>useState</code> hook from the system. It uses <code>getTargetFrom()</code> to handle upward movements through the state stack. <code>get()</code> is an implementation that can retrieve a value from an object without throwing an error if parts are missing.</p>
+<p><code>get()</code> is paired with <code>set()</code> which does the same for setting a property (these are very like lodash/underscore).</p>
+<p>The <code>useEvent()</code> hook uses React.useEffect to wire up the set of handlers suggested by <code>getPatterns()</code></p>
+<p>The code in <code>useState</code> is pretty much the crux of the whole thing. When we change a value, we update the model and emit an event. Any component that cares about the property (or is derived from it, or is listening for it with <code>useRefresh()</code>) will redraw retrieving the latest updated value.</p>
+<pre class="prettyprint source lang-jsx"><code>function Bind({ target, property = &quot;&quot;, onChange = () => {}, children }) {
+    const self = this
+    const innerId = React.useRef(refreshId++)
+    let { target: existingTarget, path, stack } = this[useTargetContext]()
+    if (target && !targetIds.has(target)) {
+        targetIds.set(target, nextId++)
+        path = [`${targetIds.get(target)}`]
+    } else if (target) {
+        path = [`${targetIds.get(target)}`]
+    } else {
+        target = existingTarget
+    }
+    const [finalTarget, setFinalTarget] = React.useState(target)
+    const currentTarget = useRef()
+    currentTarget.current = setFinalTarget
+    React.useEffect(() => {
+        return () => {
+            currentTarget.current = noop
+        }
+    }, [])
+    useEvent(`${targetIds.get(finalTarget)}`, update)
+    let updatedPath = [...path, ...getPath(property)]
+    useEvent(
+        getPatterns(finalTarget, updatedPath).map((p) => `${p}.**`),
+        () => onChange(finalTarget)
+    )
+    const [subTarget, , , id] = this.useState(property, {}, finalTarget)
+    if (Array.isArray(subTarget)) {
+        return &lt;ArrayContents key={id} />
+    } else {
+        if (typeof subTarget !== &quot;object&quot;)
+            throw new Error(&quot;You must bind to an object or an array&quot;)
+        return (
+            &lt;this.context.Provider
+                key={`${id}:${innerId.current}`}
+                value={{
+                    target: subTarget,
+                    path: updatedPath,
+                    stack: [...stack, { target: subTarget, path: updatedPath }]
+                }}
+            >
+                {children}
+            &lt;/this.context.Provider>
+        )
+    }
+
+    function update(newValue) {
+        targetIds.set(newValue, targetIds.get(target))
+        innerId.current = refreshId++
+        currentTarget.current(newValue)
+    }
+
+    function ArrayContents() {
+        let output = []
+        for (let i = 0; i &lt; subTarget.length; i++) {
+            output.push(&lt;Item key={i} index={i} />)
+        }
+        return output
+    }
+
+    function Item({ index }) {
+        return (
+            &lt;IndexContext.Provider value={index}>
+                &lt;self.Bind property={`${property}.${index}`}>
+                    {children}
+                &lt;/self.Bind>
+            &lt;/IndexContext.Provider>
+        )
+    }
+}
+</code></pre>
+<p>Bind, on the other hand, handles using an object, which it stores in the context, in addition to providing the facility for notifying its owner when things have changed.</p>
+<h1>Conclusion</h1>
+<p>I've presented a compelling way of binding data to &quot;contextual&quot; and global scope. It composes in a very natural way and has the additional benefit of providing data binding for React components. As the demonstration project proves, redrawing is minimised.</p>
 <h2>License</h2>
 <p>MIT © <a href="https://github.com/miketalbot">miketalbot</a></p></article>
     </section>

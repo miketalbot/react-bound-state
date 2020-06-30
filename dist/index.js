@@ -1714,6 +1714,7 @@ function Dummy(_ref) {
 
 function noop() {}
 
+noop.refresh = noop;
 function createState(name) {
   return new State(name);
 }
@@ -1754,13 +1755,20 @@ var State = /*#__PURE__*/function () {
         transformIn = _ref2$transformIn === void 0 ? returnValue : _ref2$transformIn,
         _ref2$transformOut = _ref2.transformOut,
         transformOut = _ref2$transformOut === void 0 ? returnValue : _ref2$transformOut,
+        updateOnBlur = _ref2.updateOnBlur,
         _ref2$extract = _ref2.extract,
         extract = _ref2$extract === void 0 ? standardExtract : _ref2$extract,
+        _ref2$onChange = _ref2.onChange,
+        onChange = _ref2$onChange === void 0 ? noop : _ref2$onChange,
         _ref2$attribute = _ref2.attribute,
         attribute = _ref2$attribute === void 0 ? "value" : _ref2$attribute,
         _ref2$event = _ref2.event,
         event = _ref2$event === void 0 ? "onChange" : _ref2$event,
+        _ref2$blurEvent = _ref2.blurEvent,
+        blurEvent = _ref2$blurEvent === void 0 ? "onBlur" : _ref2$blurEvent,
         target = _ref2.target;
+
+    var changed = React.useRef(false);
 
     var _this$useTargetContex = this[useTargetContext](),
         existingTarget = _this$useTargetContex.target,
@@ -1775,6 +1783,11 @@ var State = /*#__PURE__*/function () {
     target = _getTargetFrom[1];
     path = _getTargetFrom[2];
     var value = React.useRef(transformIn(get(target, property, defaultValue)));
+
+    var _React$useState = React__default.useState(value.current),
+        localValue = _React$useState[0],
+        setLocalValue = _React$useState[1];
+
     useEvent(getPatterns(target, [].concat(path, getPath(property), ["**"])), update);
 
     var _useState2 = React.useState(-1),
@@ -1786,18 +1799,43 @@ var State = /*#__PURE__*/function () {
         currentRefresh.current = noop;
       };
     }, []);
-    currentRefresh.current = refresh;
-    return _ref3 = {}, _ref3[attribute] = value.current, _ref3[event] = updateValue, _ref3;
+    setLocalValue.refresh = refresh;
+    currentRefresh.current = setLocalValue;
+    return _ref3 = {}, _ref3[attribute] = localValue, _ref3[event] = updateValue, _ref3[blurEvent] = blur, _ref3;
 
     function update() {
-      value.current = transformIn(get(target, property, defaultValue));
-      currentRefresh.current(refreshId++);
+      var newValue = transformIn(get(target, property, defaultValue));
+
+      if (newValue !== value.current) {
+        value.current = newValue;
+        currentRefresh.current(value.current);
+      }
+
+      currentRefresh.current.refresh(nextId++);
     }
 
     function updateValue() {
-      var newValue = transformOut(extract.apply(void 0, arguments));
-      set(target, property, newValue);
-      emit(target, path, property, newValue);
+      var currentValue = extract.apply(void 0, arguments);
+      var newValue = transformOut(currentValue);
+
+      if (updateOnBlur) {
+        value.current = newValue;
+        changed.current = true;
+        currentRefresh.current(currentValue);
+      } else {
+        set(target, property, newValue);
+        onChange(newValue);
+        emit(target, path, property, newValue);
+      }
+    }
+
+    function blur() {
+      if (changed.current) {
+        changed.current = false;
+        set(target, property, value.current);
+        onChange(value.current);
+        emit(target, path, property, value.current);
+      }
     }
   };
 
@@ -1977,9 +2015,11 @@ function Bound(_ref5) {
       transformOut = _ref5.transformOut,
       extract = _ref5.extract,
       attribute = _ref5.attribute,
+      updateOnBlur = _ref5.updateOnBlur,
+      blurEvent = _ref5.blurEvent,
       event = _ref5.event,
       target = _ref5.target,
-      other = _objectWithoutPropertiesLoose(_ref5, ["component", "property", "defaultValue", "transformIn", "transformOut", "extract", "attribute", "event", "target"]);
+      other = _objectWithoutPropertiesLoose(_ref5, ["component", "property", "defaultValue", "transformIn", "transformOut", "extract", "attribute", "updateOnBlur", "blurEvent", "event", "target"]);
 
   var Component = component && component.type || Dummy;
   var props = component && component.props || {};
@@ -1990,13 +2030,16 @@ function Bound(_ref5) {
     extract: extract,
     attribute: attribute,
     event: event,
-    target: target
+    target: target,
+    blurEvent: blurEvent,
+    updateOnBlur: updateOnBlur
   });
   return /*#__PURE__*/React__default.createElement(Component, _extends({}, extraProps, props, other));
 }
 
 Bound.propTypes = {
   attribute: propTypes.string,
+  blurEvent: propTypes.any,
   component: propTypes.object,
   defaultValue: propTypes.any,
   event: propTypes.string,
@@ -2004,7 +2047,8 @@ Bound.propTypes = {
   property: propTypes.string,
   target: propTypes.object,
   transformIn: propTypes.func,
-  transformOut: propTypes.func
+  transformOut: propTypes.func,
+  updateOnBlur: propTypes.any
 };
 Bound.defaultProps = {
   component: /*#__PURE__*/React__default.createElement("input", null)
@@ -2053,9 +2097,9 @@ function Bind(_ref6) {
     target = existingTarget;
   }
 
-  var _React$useState = React__default.useState(target),
-      finalTarget = _React$useState[0],
-      setFinalTarget = _React$useState[1];
+  var _React$useState2 = React__default.useState(target),
+      finalTarget = _React$useState2[0],
+      setFinalTarget = _React$useState2[1];
 
   var currentTarget = React.useRef();
   currentTarget.current = setFinalTarget;

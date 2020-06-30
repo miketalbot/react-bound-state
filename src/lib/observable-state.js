@@ -1,4 +1,4 @@
-import PropTypes from "prop-types"
+import PropTypes from 'prop-types'
 import React, { useContext, useRef, useState } from "react"
 import { get, set } from "./get-set"
 import {
@@ -26,15 +26,16 @@ function Dummy({ children }) {
 }
 
 function noop() {}
+noop.refresh = noop
 
 /**
- * @callback TransformValue
+ * @function TransformValue
  * @param {any} value - the value to be transformed
  * @returns {any} the transformed value
  */
 
 /**
- * @callback Extractor
+ * @function Extractor
  * @param {any} event - the parameter of the event handler
  * @returns {any} the extracted value
  */
@@ -106,10 +107,13 @@ class State {
      * @param {any} [defaultValue] - the default value for the property
      * @param {TransformValue} [transformIn] - a function to transform inbound values
      * @param {TransformValue} [transformOut] - a function to transform outbound values
+     * @param {any} [updateOnBlur] - set if the component should only update when it blurs
      * @param {Extractor} [extract] - a function that transforms event values to real values - default
      * version will extract from event.target.value if available, otherwise the value itself
+     * @param {Function} onChange
      * @param {string} [attribute="value"] - the attribute to bind to
      * @param {string} [event="onChange"] - the event to be bound for changes
+     * @param {string} [blurEvent="onBlur"] - the event for blurring
      * @param {object} [target] - an override for the target
      * @returns {object} an object containing the specified value and change function
      * @example
@@ -123,16 +127,21 @@ class State {
             defaultValue,
             transformIn = returnValue,
             transformOut = returnValue,
+            updateOnBlur,
             extract = standardExtract,
+            onChange = noop,
             attribute = "value",
             event = "onChange",
+            blurEvent = "onBlur",
             target
         } = {}
     ) {
+        const changed = useRef(false)
         let { target: existingTarget, path, stack } = this[useTargetContext]()
         target = target || existingTarget
         ;[property, target, path] = getTargetFrom(property, target, path, stack)
         const value = useRef(transformIn(get(target, property, defaultValue)))
+        const [localValue, setLocalValue] = React.useState(value.current)
 
         useEvent(
             getPatterns(target, [...path, ...getPath(property), "**"]),
@@ -145,20 +154,47 @@ class State {
                 currentRefresh.current = noop
             }
         }, [])
+        setLocalValue.refresh = refresh
+        currentRefresh.current = setLocalValue
 
-        currentRefresh.current = refresh
-
-        return { [attribute]: value.current, [event]: updateValue }
+        return {
+            [attribute]: localValue,
+            [event]: updateValue,
+            [blurEvent]: blur
+        }
 
         function update() {
-            value.current = transformIn(get(target, property, defaultValue))
-            currentRefresh.current(refreshId++)
+            let newValue = transformIn(get(target, property, defaultValue))
+            if (newValue !== value.current) {
+                value.current = newValue
+                currentRefresh.current(value.current)
+
+            }
+            currentRefresh.current.refresh(nextId++)
         }
 
         function updateValue(...params) {
-            const newValue = transformOut(extract(...params))
-            set(target, property, newValue)
-            emit(target, path, property, newValue)
+            let currentValue = extract(...params)
+            const newValue = transformOut(currentValue)
+
+            if (updateOnBlur) {
+                value.current = newValue
+                changed.current = true
+                currentRefresh.current(currentValue)
+            } else {
+                set(target, property, newValue)
+                onChange(newValue)
+                emit(target, path, property, newValue)
+            }
+        }
+
+        function blur() {
+            if (changed.current) {
+                changed.current = false
+                set(target, property, value.current)
+                onChange(value.current)
+                emit(target, path, property, value.current)
+            }
         }
     }
 
@@ -348,10 +384,12 @@ class State {
  * @property {any} [defaultValue] - a default value for the property
  * @property {TransformValue} [transformIn] - a function to transform inbound values
  * @property {TransformValue} [transformOut] - a function to transform outbound values
+ * @property {any} [updateOnBlur] - set if the component should only update when it blurs
  * @property {Extractor} [extract] - a function that transforms event values to real values - default
  * version will extract from event.target.value if available, otherwise the value itself
  * @property {string} [attribute="value"] - the attribute to bind to
  * @property {string} [event="onChange"] - the event to be bound for changes
+ * @property {string} [blurEvent="onBlur"] - the event for blurring
  * @property {object} [target] - an override for the target
  */
 
@@ -379,6 +417,8 @@ function Bound({
     transformOut,
     extract,
     attribute,
+    updateOnBlur,
+    blurEvent,
     event,
     target,
     ...other
@@ -392,25 +432,29 @@ function Bound({
         extract,
         attribute,
         event,
-        target
+        target,
+        blurEvent,
+        updateOnBlur
     })
     return <Component {...extraProps} {...props} {...other} />
 }
 
 Bound.propTypes = {
-    attribute: PropTypes.string,
-    component: PropTypes.object,
-    defaultValue: PropTypes.any,
-    event: PropTypes.string,
-    extract: PropTypes.func,
-    property: PropTypes.string,
-    target: PropTypes.object,
-    transformIn: PropTypes.func,
-    transformOut: PropTypes.func
+  attribute: PropTypes.string,
+  blurEvent: PropTypes.any,
+  component: PropTypes.object,
+  defaultValue: PropTypes.any,
+  event: PropTypes.string,
+  extract: PropTypes.func,
+  property: PropTypes.string,
+  target: PropTypes.object,
+  transformIn: PropTypes.func,
+  transformOut: PropTypes.func,
+  updateOnBlur: PropTypes.any
 }
 
 Bound.defaultProps = {
-    component: <input />
+  component: <input />
 }
 
 function recurseSet(newValue, target, path = []) {
