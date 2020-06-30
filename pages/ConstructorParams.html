@@ -5,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> BoundProps</title>
+  <title> ConstructorParams</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -88,7 +88,7 @@
             <div class="content">
                 <header class="page-title">
                     <p>Interface</p>
-                    <h1>BoundProps</h1>
+                    <h1>ConstructorParams</h1>
                 </header>
                 
 
@@ -99,7 +99,7 @@
 
 <header>
     
-        <h2>BoundProps</h2>
+        <h2>ConstructorParams</h2>
         
     
 </header>
@@ -142,44 +142,7 @@
             
 <tr class="deep-level-0">
     
-        <td class="name"><code>component</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type">object</span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-            &lt;input/>
-        
-        </td>
-    
-
-    <td class="description last">the component to be bound as an executed JSX expression</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>property</code></td>
+        <td class="name"><code>delimiter</code></td>
     
 
     <td class="type">
@@ -204,193 +167,19 @@
     
         <td class="default">
         
+            .
+        
         </td>
     
 
-    <td class="description last">the property to which the component should be bound</td>
+    <td class="description last">a character which delimits parts of an event pattern</td>
 </tr>
 
         
             
 <tr class="deep-level-0">
     
-        <td class="name"><code>defaultValue</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type">any</span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-        </td>
-    
-
-    <td class="description last">a default value for the property</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>transformIn</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type"><a href="global.html#TransformValue">TransformValue</a></span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-        </td>
-    
-
-    <td class="description last">a function to transform inbound values</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>transformOut</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type"><a href="global.html#TransformValue">TransformValue</a></span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-        </td>
-    
-
-    <td class="description last">a function to transform outbound values</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>updateOnBlur</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type">any</span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-        </td>
-    
-
-    <td class="description last">set if the component should only update when it blurs</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>extract</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type"><a href="global.html#Extractor">Extractor</a></span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-        </td>
-    
-
-    <td class="description last">a function that transforms event values to real values - default
-version will extract from event.target.value if available, otherwise the value itself</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>attribute</code></td>
+        <td class="name"><code>wildcard</code></td>
     
 
     <td class="type">
@@ -415,25 +204,25 @@ version will extract from event.target.value if available, otherwise the value i
     
         <td class="default">
         
-            "value"
+            *
         
         </td>
     
 
-    <td class="description last">the attribute to bind to</td>
+    <td class="description last">a wildcard indicator used to handle any parts of a pattern</td>
 </tr>
 
         
             
 <tr class="deep-level-0">
     
-        <td class="name"><code>event</code></td>
+        <td class="name"><code>prepareHandlers</code></td>
     
 
     <td class="type">
     
         
-<span class="param-type">string</span>
+<span class="param-type"><a href="global.html#HandlePreparer">HandlePreparer</a></span>
 
 
     
@@ -452,25 +241,26 @@ version will extract from event.target.value if available, otherwise the value i
     
         <td class="default">
         
-            "onChange"
+            v=>v
         
         </td>
     
 
-    <td class="description last">the event to be bound for changes</td>
+    <td class="description last">a function to modify the handlers just before raising,
+this is the combined set of all of the handlers that will be raised.</td>
 </tr>
 
         
             
 <tr class="deep-level-0">
     
-        <td class="name"><code>blurEvent</code></td>
+        <td class="name"><code>storeHandlers</code></td>
     
 
     <td class="type">
     
         
-<span class="param-type">string</span>
+<span class="param-type"><a href="global.html#HandlePreparer">HandlePreparer</a></span>
 
 
     
@@ -489,47 +279,12 @@ version will extract from event.target.value if available, otherwise the value i
     
         <td class="default">
         
-            "onBlur"
+            v=>v
         
         </td>
     
 
-    <td class="description last">the event for blurring</td>
-</tr>
-
-        
-            
-<tr class="deep-level-0">
-    
-        <td class="name"><code>target</code></td>
-    
-
-    <td class="type">
-    
-        
-<span class="param-type">object</span>
-
-
-    
-    </td>
-
-    
-        <td class="attributes">
-        
-            &lt;optional><br>
-        
-
-        
-        </td>
-    
-
-    
-        <td class="default">
-        
-        </td>
-    
-
-    <td class="description last">an override for the target</td>
+    <td class="description last">a function to modify or sort the handlers before storing,</td>
 </tr>
 
         
@@ -572,9 +327,9 @@ version will extract from event.target.value if available, otherwise the value i
 
     
         <p class="tag-source">
-            <a href="observable-state.js.html" class="button">View Source</a>
+            <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="observable-state.js.html">observable-state.js</a>, <a href="observable-state.js.html#line380">line 380</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line29">line 29</a>
             </span>
         </p>
     

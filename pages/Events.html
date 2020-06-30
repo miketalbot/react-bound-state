@@ -80,7 +80,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#Extractor">Extractor</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#TransformValue">TransformValue</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -99,7 +99,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Events<span class="signature">(delimiter<span class="signature-attributes">opt</span>, wildcard<span class="signature-attributes">opt</span>, prepareHandlers<span class="signature-attributes">opt</span>, storeHandlers<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Events<span class="signature">(props<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
             <div class="class-description">Event emitter with wild card support and delimited entries.</div>
         
@@ -125,7 +125,7 @@
         
         <span class="code-name">
             
-                new Events<span class="signature">(delimiter<span class="signature-attributes">opt</span>, wildcard<span class="signature-attributes">opt</span>, prepareHandlers<span class="signature-attributes">opt</span>, storeHandlers<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                new Events<span class="signature">(props<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
             
         </span>
     </h4>
@@ -163,8 +163,6 @@
             
 
             
-            <th>Default</th>
-            
 
             <th class="last">Description</th>
         </tr>
@@ -176,13 +174,13 @@
             
 <tr class="deep-level-0">
   
-      <td class="name"><code>delimiter</code></td>
+      <td class="name"><code>props</code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">string</span>
+<span class="param-type"><a href="ConstructorParams.html">ConstructorParams</a></span>
 
 
   
@@ -201,140 +199,8 @@
   
 
   
-      <td class="default">
-      
-          .
-      
-      </td>
-  
 
-  <td class="description last">a character which delimits parts of an event pattern</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>wildcard</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">string</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          *
-      
-      </td>
-  
-
-  <td class="description last">a wildcard indicator used to handle any parts of a pattern</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>prepareHandlers</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type"><a href="global.html#HandlePreparer">HandlePreparer</a></span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          v=>v
-      
-      </td>
-  
-
-  <td class="description last">a function to modify the handlers just before raising,
-this is the combined set of all of the handlers that will be raised.</td>
-</tr>
-
-
-        
-
-            
-<tr class="deep-level-0">
-  
-      <td class="name"><code>storeHandlers</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type"><a href="global.html#HandlePreparer">HandlePreparer</a></span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          v=>v
-      
-      </td>
-  
-
-  <td class="description last">a function to modify or sort the handlers before storing,
-this is the array of handlers stored for the specific event pattern, it will not contain every handler
-that is raised for the event, as that may contain other wildcards at the time.</td>
+  <td class="description last">parameters to configure the emitter</td>
 </tr>
 
 
@@ -382,7 +248,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line43">line 43</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line47">line 47</a>
             </span>
         </p>
     
@@ -607,7 +473,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line176">line 176</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line180">line 180</a>
             </span>
         </p>
     
@@ -829,7 +695,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line192">line 192</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line196">line 196</a>
             </span>
         </p>
     
@@ -1051,7 +917,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line208">line 208</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line212">line 212</a>
             </span>
         </p>
     
@@ -1269,7 +1135,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line106">line 106</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line110">line 110</a>
             </span>
         </p>
     
@@ -1442,7 +1308,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line64">line 64</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line68">line 68</a>
             </span>
         </p>
     
@@ -1615,7 +1481,7 @@ that is raised for the event, as that may contain other wildcards at the time.</
         <p class="tag-source">
             <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line91">line 91</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line95">line 95</a>
             </span>
         </p>
     

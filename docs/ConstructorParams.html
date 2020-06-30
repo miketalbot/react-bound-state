@@ -5,7 +5,7 @@
   
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> Socket</title>
+  <title> ConstructorParams</title>
 
   <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -87,8 +87,8 @@
         <div class="core" id="main-content-wrapper">
             <div class="content">
                 <header class="page-title">
-                    <p>Components</p>
-                    <h1>Socket</h1>
+                    <p>Interface</p>
+                    <h1>ConstructorParams</h1>
                 </header>
                 
 
@@ -99,9 +99,7 @@
 
 <header>
     
-        <h2>
-            &ltSocket <i>filter</i> <i>type</i> /&gt
-        </h2>
+        <h2>ConstructorParams</h2>
         
     
 </header>
@@ -110,92 +108,189 @@
     <div class="container-overview">
     
         
-            <div class='vertical-section'>
-                <div class="members">
-                    <div class="member">
-                        <div class=name>
-                            <span class="tag">Constructor</span>
-                        </div>
-                        
 
-
-    
-    <h4 class="name" id="Socket">
-        <a class="href-link" href="#Socket">#</a>
         
-        <span class="code-name">
-            
-                &ltSocket <i>filter</i> <i>type</i> /&gt
-            
-        </span>
-    </h4>
-    
+
+
+    <h5 class="subsection-title">Properties:</h5>
 
     
-    
-    <div class="description">
-        Inserts an inversion of control socket that uses the event
-bus to find "plugs" to render.  The type indicates the
-type of plug to find, a filter property allows you to filter
-the resulting list.
-    </div>
-    
-
-
-
-
-
-
-
-    
-        <h5>PropTypes:</h5>
-        
 <div class="table-container">
-  <table class="params table">
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Required</th>
-        <th>Description</th>
-        <th class="last">Default</th>
-    </tr>
-    </thead>
+    <table class="props table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
 
-    <tbody>
+            <th>Type</th>
+
+            
+            <th>Attributes</th>
+            
+
+            
+            <th>Default</th>
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+            
+<tr class="deep-level-0">
     
-          <tr class="deep-level-0">
-            <td class="name"><code>filter</code></td>
-            <td>
-              func
-            </td>
-            <td>No</td>
-            <td></td>
-            <td>function returnValue(value) {
-    return value
-}</td>
-          </tr>
-          
+        <td class="name"><code>delimiter</code></td>
     
-          <tr class="deep-level-0">
-            <td class="name"><code>type</code></td>
-            <td>
-              string
-            </td>
-            <td>Yes</td>
-            <td></td>
-            <td></td>
-          </tr>
-          
+
+    <td class="type">
     
-    </tbody>
-  </table>
+        
+<span class="param-type">string</span>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            .
+        
+        </td>
+    
+
+    <td class="description last">a character which delimits parts of an event pattern</td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>wildcard</code></td>
+    
+
+    <td class="type">
+    
+        
+<span class="param-type">string</span>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            *
+        
+        </td>
+    
+
+    <td class="description last">a wildcard indicator used to handle any parts of a pattern</td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>prepareHandlers</code></td>
+    
+
+    <td class="type">
+    
+        
+<span class="param-type"><a href="global.html#HandlePreparer">HandlePreparer</a></span>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            v=>v
+        
+        </td>
+    
+
+    <td class="description last">a function to modify the handlers just before raising,
+this is the combined set of all of the handlers that will be raised.</td>
+</tr>
+
+        
+            
+<tr class="deep-level-0">
+    
+        <td class="name"><code>storeHandlers</code></td>
+    
+
+    <td class="type">
+    
+        
+<span class="param-type"><a href="global.html#HandlePreparer">HandlePreparer</a></span>
+
+
+    
+    </td>
+
+    
+        <td class="attributes">
+        
+            &lt;optional><br>
+        
+
+        
+        </td>
+    
+
+    
+        <td class="default">
+        
+            v=>v
+        
+        </td>
+    
+
+    <td class="description last">a function to modify or sort the handlers before storing,</td>
+</tr>
+
+        
+        </tbody>
+    </table>
 </div>
-    
-
-
-
-
 
 
 
@@ -232,59 +327,18 @@ the resulting list.
 
     
         <p class="tag-source">
-            <a href="event-bus.js.html" class="button">View Source</a>
+            <a href="emitter.js.html" class="button">View Source</a>
             <span>
-                <a href="event-bus.js.html">event-bus.js</a>, <a href="event-bus.js.html#line185">line 185</a>
+                <a href="emitter.js.html">emitter.js</a>, <a href="emitter.js.html#line29">line 29</a>
             </span>
         </p>
     
 </dl>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    
-        
-
-<div id='component0'></div>
-
-<script>
-  ReactDOM.render(ReactWrapper({
-    example: "<Socket type=\"yourType\" any=\"other\" propsYou={{like: 'here'}}/>",
-    uniqId: "component0",
-  }), document.getElementById('component0'));
-</script>
-    
-
-
-
-                    </div>
-                </div>
-            </div>
         
     
     </div>
-    
-        
     
     
 

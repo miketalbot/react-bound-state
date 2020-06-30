@@ -1,6 +1,6 @@
 {
   "name": "react-bound-state",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "description": "Binding library for React",
   "author": "miketalbot",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "test:lint": "eslint .",
     "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
     "test:watch": "react-scripts test --env=jsdom",
-    "predeploy": "cp -r ./docs ./pages && cd example && npm install && npm run build && cp -r ./build ../pages/example",
+    "predeploy": "rm -rf ./pages && cp -r ./docs ./pages && cd example && npm install && npm run build && cp -r ./build ../pages/example && cd .. && git commit -am deploy && git push",
     "deploy": "gh-pages -d pages",
     "document": "rm -rf ./docs && jsdoc -c ./doc.conf.json",
     "tsd": "jsdoc -t node_modules/tsd-jsdoc/dist -r ./src/lib/observable-state.js"
