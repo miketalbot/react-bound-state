@@ -1,6 +1,6 @@
 {
   "name": "react-bound-state",
-  "version": "1.0.39",
+  "version": "1.0.40",
   "description": "Binding library for React",
   "author": "miketalbot",
   "license": "MIT",
@@ -16,7 +16,8 @@
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",
     "start": "microbundle-crl watch --no-compress --format modern,cjs",
-    "prepare": "node ./node_modules/versiony-cli/bin/cli.js ./package.json --patch && run-s build && cp ./src/types.d.ts ./dist",
+    "prepare": "npm run document && node ./node_modules/versiony-cli/bin/cli.js ./package.json --patch && run-s build && cp ./src/types.d.ts ./dist",
+    "postpublish": "git commit -am publish && git push",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
     "test:lint": "eslint .",

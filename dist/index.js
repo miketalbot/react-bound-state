@@ -1419,6 +1419,19 @@ var EventEntry = /*#__PURE__*/function () {
 
   return EventEntry;
 }();
+
+function prepareNames(names) {
+  if (typeof name === 'string') {
+    return names.split(',');
+  } else if (Array.isArray(names)) {
+    return names.map(function (name) {
+      return name.split(',');
+    }).flat(Infinity);
+  } else {
+    throw new Error("Invalid pattern" + names);
+  }
+}
+
 var Events = /*#__PURE__*/function () {
   function Events(_temp) {
     var _ref = _temp === void 0 ? {} : _temp,
@@ -1445,31 +1458,36 @@ var Events = /*#__PURE__*/function () {
 
   var _proto2 = Events.prototype;
 
-  _proto2.on = function on(name, handler) {
-    var parts = name.split(this.delimiter);
-    var scan = this.events;
+  _proto2.on = function on(names, handler) {
+    for (var _iterator = _createForOfIteratorHelperLoose(prepareNames(names)), _step; !(_step = _iterator()).done;) {
+      var _name = _step.value;
 
-    for (var i = 0, l = parts.length; i < l; i++) {
-      var part = parts[i];
+      var parts = _name.split(this.delimiter);
 
-      switch (part) {
-        case this.wildcard:
-          scan = scan.all;
-          break;
+      var scan = this.events;
 
-        case this.doubleWild:
-          scan.allBelow.push(handler);
-          scan.allBelow = this.storeHandlers(scan.allBelow);
-          return;
+      for (var i = 0, l = parts.length; i < l; i++) {
+        var part = parts[i];
 
-        default:
-          scan = scan.getChild(part);
-          break;
+        switch (part) {
+          case this.wildcard:
+            scan = scan.all;
+            break;
+
+          case this.doubleWild:
+            scan.allBelow.push(handler);
+            scan.allBelow = this.storeHandlers(scan.allBelow);
+            return;
+
+          default:
+            scan = scan.getChild(part);
+            break;
+        }
       }
-    }
 
-    scan.handlers.push(handler);
-    scan.handlers = this.storeHandlers(scan.handlers);
+      scan.handlers.push(handler);
+      scan.handlers = this.storeHandlers(scan.handlers);
+    }
   };
 
   _proto2.once = function once(name, handler) {
@@ -1482,44 +1500,49 @@ var Events = /*#__PURE__*/function () {
     }
   };
 
-  _proto2.off = function off(name, handler) {
-    var parts = name.split(this.delimiter);
-    var scan = this.events;
+  _proto2.off = function off(names, handler) {
+    for (var _iterator2 = _createForOfIteratorHelperLoose(prepareNames(names)), _step2; !(_step2 = _iterator2()).done;) {
+      var _name2 = _step2.value;
 
-    for (var i = 0, l = parts.length; i < l; i++) {
-      var part = parts[i];
+      var parts = _name2.split(this.delimiter);
 
-      switch (part) {
-        case this.wildcard:
-          scan = scan.all;
-          break;
+      var scan = this.events;
 
-        case this.doubleWild:
-          {
-            if (handler === undefined) {
-              scan.allBelow = [];
+      for (var i = 0, l = parts.length; i < l; i++) {
+        var part = parts[i];
+
+        switch (part) {
+          case this.wildcard:
+            scan = scan.all;
+            break;
+
+          case this.doubleWild:
+            {
+              if (handler === undefined) {
+                scan.allBelow = [];
+                return;
+              }
+
+              var idx = scan.allBelow.indexOf(handler);
+              if (idx === -1) return;
+              scan.allBelow.splice(idx, 1);
               return;
             }
 
-            var idx = scan.allBelow.indexOf(handler);
-            if (idx === -1) return;
-            scan.allBelow.splice(idx, 1);
-            return;
-          }
-
-        default:
-          scan = scan.getChild(part);
-          break;
+          default:
+            scan = scan.getChild(part);
+            break;
+        }
       }
-    }
 
-    if (handler !== undefined) {
-      var _idx = scan.handlers.indexOf(handler);
+      if (handler !== undefined) {
+        var _idx = scan.handlers.indexOf(handler);
 
-      if (_idx === -1) return;
-      scan.handlers.splice(_idx, 1);
-    } else {
-      scan.handlers = [];
+        if (_idx === -1) return;
+        scan.handlers.splice(_idx, 1);
+      } else {
+        scan.handlers = [];
+      }
     }
   };
 
@@ -1537,8 +1560,8 @@ var Events = /*#__PURE__*/function () {
   };
 
   _proto2._callHandlers = function _callHandlers(handlerList, params) {
-    for (var _iterator = _createForOfIteratorHelperLoose(handlerList), _step; !(_step = _iterator()).done;) {
-      var handler = _step.value;
+    for (var _iterator3 = _createForOfIteratorHelperLoose(handlerList), _step3; !(_step3 = _iterator3()).done;) {
+      var handler = _step3.value;
       handler.apply(this, params);
     }
   };
@@ -1563,8 +1586,8 @@ var Events = /*#__PURE__*/function () {
 
       var promises = [];
 
-      for (var _iterator2 = _createForOfIteratorHelperLoose(handlerList), _step2; !(_step2 = _iterator2()).done;) {
-        var handler = _step2.value;
+      for (var _iterator4 = _createForOfIteratorHelperLoose(handlerList), _step4; !(_step4 = _iterator4()).done;) {
+        var handler = _step4.value;
         promises.push(Promise.resolve(handler.apply(_this4, params)));
       }
 
@@ -1600,13 +1623,13 @@ var Events = /*#__PURE__*/function () {
     try {
       var _this6 = this;
 
-      var _handlers = [];
+      var handlers = [];
       _this6.event = event;
       var parts = event.split(_this6.delimiter);
 
-      _this6._emit(_this6.events, parts, 0, _handlers);
+      _this6._emit(_this6.events, parts, 0, handlers);
 
-      var toExecute = _this6.prepareHandlers(_handlers);
+      var toExecute = _this6.prepareHandlers(handlers);
 
       return Promise.resolve(_this6._callHandlersAsync(toExecute, params)).then(function () {
         return params;
@@ -1624,13 +1647,13 @@ var Events = /*#__PURE__*/function () {
     try {
       var _this8 = this;
 
-      var _handlers2 = [];
+      var handlers = [];
       _this8.event = event;
       var parts = event.split(_this8.delimiter);
 
-      _this8._emit(_this8.events, parts, 0, _handlers2);
+      _this8._emit(_this8.events, parts, 0, handlers);
 
-      var toExecute = _this8.prepareHandlers(_handlers2);
+      var toExecute = _this8.prepareHandlers(handlers);
 
       return Promise.resolve(_this8._callHandlersAsyncAtOnce(toExecute, params)).then(function () {
         return params;
