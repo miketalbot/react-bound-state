@@ -118,7 +118,15 @@
     }
 }
 
-const handlers = []
+function prepareNames(names) {
+    if(typeof name === 'string') {
+        return names.split(',')
+    } else if (Array.isArray(names)) {
+        return names.map(name=>name.split(',')).flat(Infinity)
+    } else {
+        throw new Error("Invalid pattern" + names)
+    }
+}
 
 /**
  * @callback HandlePreparer
@@ -163,29 +171,31 @@ export class Events {
      * Adds an event listener with wildcards etc
      * @instance
      * @memberOf Events
-     * @param {string} name - the event pattern to handle
+     * @param {string} names - the event patterns to handle
      * @param {Function} handler - the handler for the pattern
      */
-    on(name, handler) {
-        const parts = name.split(this.delimiter)
-        let scan = this.events
-        for (let i = 0, l = parts.length; i &lt; l; i++) {
-            const part = parts[i]
-            switch (part) {
-                case this.wildcard:
-                    scan = scan.all
-                    break
-                case this.doubleWild:
-                    scan.allBelow.push(handler)
-                    scan.allBelow = this.storeHandlers(scan.allBelow)
-                    return
-                default:
-                    scan = scan.getChild(part)
-                    break
+    on(names, handler) {
+        for(let name of prepareNames(names)) {
+            const parts = name.split(this.delimiter)
+            let scan = this.events
+            for (let i = 0, l = parts.length; i &lt; l; i++) {
+                const part = parts[i]
+                switch (part) {
+                    case this.wildcard:
+                        scan = scan.all
+                        break
+                    case this.doubleWild:
+                        scan.allBelow.push(handler)
+                        scan.allBelow = this.storeHandlers(scan.allBelow)
+                        return
+                    default:
+                        scan = scan.getChild(part)
+                        break
+                }
             }
+            scan.handlers.push(handler)
+            scan.handlers = this.storeHandlers(scan.handlers)
         }
-        scan.handlers.push(handler)
-        scan.handlers = this.storeHandlers(scan.handlers)
     }
 
     /**
@@ -205,40 +215,42 @@ export class Events {
 
     /**
      * Removes a listener from a pattern
-     * @param {string} name - the pattern of the handler to remove
+     * @param {string} names - the pattern(s) of the handler to remove
      * @param {Function} [handler] - the handler to remove, or all handlers
      */
-    off(name, handler) {
-        const parts = name.split(this.delimiter)
-        let scan = this.events
-        for (let i = 0, l = parts.length; i &lt; l; i++) {
-            const part = parts[i]
-            switch (part) {
-                case this.wildcard:
-                    scan = scan.all
-                    break
-                case this.doubleWild: {
-                    if (handler === undefined) {
-                        scan.allBelow = []
+    off(names, handler) {
+        for(let name of prepareNames(names)) {
+            const parts = name.split(this.delimiter)
+            let scan = this.events
+            for (let i = 0, l = parts.length; i &lt; l; i++) {
+                const part = parts[i]
+                switch (part) {
+                    case this.wildcard:
+                        scan = scan.all
+                        break
+                    case this.doubleWild: {
+                        if (handler === undefined) {
+                            scan.allBelow = []
+                            return
+                        }
+                        const idx = scan.allBelow.indexOf(handler)
+                        if (idx === -1) return
+                        scan.allBelow.splice(idx, 1)
                         return
                     }
-                    const idx = scan.allBelow.indexOf(handler)
-                    if (idx === -1) return
-                    scan.allBelow.splice(idx, 1)
-                    return
+                    default:
+                        scan = scan.getChild(part)
+                        break
                 }
-                default:
-                    scan = scan.getChild(part)
-                    break
             }
-        }
 
-        if (handler !== undefined) {
-            const idx = scan.handlers.indexOf(handler)
-            if (idx === -1) return
-            scan.handlers.splice(idx, 1)
-        } else {
-            scan.handlers = []
+            if (handler !== undefined) {
+                const idx = scan.handlers.indexOf(handler)
+                if (idx === -1) return
+                scan.handlers.splice(idx, 1)
+            } else {
+                scan.handlers = []
+            }
         }
     }
 
