@@ -17,11 +17,11 @@ class EventEntry {
     }
 }
 
-function prepareNames(names) {
-    if(typeof name === 'string') {
-        return names.split(',')
+function prepareNames(names, separator) {
+    if (typeof name === "string") {
+        return names.split(",")
     } else if (Array.isArray(names)) {
-        return names.map(name=>name.split(',')).flat(Infinity)
+        return names.map((name) => name.split(",")).flat(Infinity)
     } else {
         throw new Error("Invalid pattern" + names)
     }
@@ -38,6 +38,7 @@ function prepareNames(names) {
  * @interface ConstructorParams
  * @property {string} [delimiter=.] - a character which delimits parts of an event pattern
  * @property {string} [wildcard=*] - a wildcard indicator used to handle any parts of a pattern
+ * @property {string} [separator=,] - a character to separate multiple events in the same pattern
  * @property {HandlePreparer} [prepareHandlers=v=>v] - a function to modify the handlers just before raising,
  * this is the combined set of all of the handlers that will be raised.
  * @property {HandlePreparer} [storeHandlers=v=>v] - a function to modify or sort the handlers before storing,
@@ -55,11 +56,13 @@ export class Events {
     constructor({
         delimiter = ".",
         wildcard = "*",
+        separator = ",",
         prepareHandlers = (v) => v,
         storeHandlers = (v) => v
     } = {}) {
         this.delimiter = delimiter
         this.wildcard = wildcard
+        this.separator = separator
         this.doubleWild = `${wildcard}${wildcard}`
         this.events = new EventEntry()
         this.prepareHandlers = prepareHandlers
@@ -70,11 +73,11 @@ export class Events {
      * Adds an event listener with wildcards etc
      * @instance
      * @memberOf Events
-     * @param {string} names - the event patterns to handle
+     * @param {string|Array<string>} names - the event patterns to handle
      * @param {Function} handler - the handler for the pattern
      */
     on(names, handler) {
-        for(let name of prepareNames(names)) {
+        for (let name of prepareNames(names, this.separator)) {
             const parts = name.split(this.delimiter)
             let scan = this.events
             for (let i = 0, l = parts.length; i < l; i++) {
@@ -98,8 +101,9 @@ export class Events {
     }
 
     /**
-     * Add an event listener that will fire only once
-     * @param {string} name - the event pattern to listen for
+     * Add an event listener that will fire only once, if multiple
+     * patterns are provided it will only fire on the first one
+     * @param {string|Array<string>} name - the event pattern to listen for
      * @param {Function} handler - the function to invoke
      */
     once(name, handler) {
@@ -114,11 +118,11 @@ export class Events {
 
     /**
      * Removes a listener from a pattern
-     * @param {string} names - the pattern(s) of the handler to remove
+     * @param {string|Array<string>} names - the pattern(s) of the handler to remove
      * @param {Function} [handler] - the handler to remove, or all handlers
      */
     off(names, handler) {
-        for(let name of prepareNames(names)) {
+        for (let name of prepareNames(names, this.separator)) {
             const parts = name.split(this.delimiter)
             let scan = this.events
             for (let i = 0, l = parts.length; i < l; i++) {

@@ -1417,12 +1417,12 @@ var EventEntry = /*#__PURE__*/function () {
   return EventEntry;
 }();
 
-function prepareNames(names) {
-  if (typeof name === 'string') {
-    return names.split(',');
+function prepareNames(names, separator) {
+  if (typeof name === "string") {
+    return names.split(",");
   } else if (Array.isArray(names)) {
     return names.map(function (name) {
-      return name.split(',');
+      return name.split(",");
     }).flat(Infinity);
   } else {
     throw new Error("Invalid pattern" + names);
@@ -1436,6 +1436,8 @@ var Events = /*#__PURE__*/function () {
         delimiter = _ref$delimiter === void 0 ? "." : _ref$delimiter,
         _ref$wildcard = _ref.wildcard,
         wildcard = _ref$wildcard === void 0 ? "*" : _ref$wildcard,
+        _ref$separator = _ref.separator,
+        separator = _ref$separator === void 0 ? "," : _ref$separator,
         _ref$prepareHandlers = _ref.prepareHandlers,
         prepareHandlers = _ref$prepareHandlers === void 0 ? function (v) {
       return v;
@@ -1447,6 +1449,7 @@ var Events = /*#__PURE__*/function () {
 
     this.delimiter = delimiter;
     this.wildcard = wildcard;
+    this.separator = separator;
     this.doubleWild = "" + wildcard + wildcard;
     this.events = new EventEntry();
     this.prepareHandlers = prepareHandlers;
