@@ -82,7 +82,7 @@
             
             <nav>
                 
-                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#Extractor">Extractor</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#TransformValue">TransformValue</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Classes</h3><ul><li><a href="Events.html">Events</a></li><li><a href="State.html">State</a></li></ul><h3>Interfaces</h3><ul><li><a href="BindProps.html">BindProps</a></li><li><a href="BoundProps.html">BoundProps</a></li><li><a href="ConstructorParams.html">ConstructorParams</a></li></ul><h3>Components</h3><ul><li><a href="Socket.html">Socket</a></li></ul><h3>Global</h3><ul><li><a href="global.html#bestOnly">bestOnly</a></li><li><a href="global.html#createState">createState</a></li><li><a href="global.html#ensureArray">ensureArray</a></li><li><a href="global.html#events">events</a></li><li><a href="global.html#handle">handle</a></li><li><a href="global.html#lessThan">lessThan</a></li><li><a href="global.html#once">once</a></li><li><a href="global.html#plug">plug</a></li><li><a href="global.html#raise">raise</a></li><li><a href="global.html#raiseAsync">raiseAsync</a></li><li><a href="global.html#raiseLater">raiseLater</a></li><li><a href="global.html#setEventSource">setEventSource</a></li><li><a href="global.html#Setter">Setter</a></li><li><a href="global.html#stopPropagationAndExit">stopPropagationAndExit</a></li><li><a href="global.html#useEvent">useEvent</a></li><li><a href="global.html#using">using</a></li></ul></div>
                 
             </nav>
         </div>
@@ -99,24 +99,28 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import PropTypes from 'prop-types'
-import React, { useContext, useRef, useState } from "react"
+            <pre class="prettyprint source linenums"><code>import PropTypes from "prop-types"
+import React, { useContext, useEffect, useRef, useState } from "react"
 import { get, set } from "./get-set"
 import {
     getPath,
     getPatterns,
     returnValue,
     standardExtract,
-    targetEvents,
-    targetIds,
-    useEvent
+    targetIds
 } from "./observable-state-helpers"
+import Events from "./emitter"
+import { ensureArray } from "./event-bus"
+import { debounce } from "../../example/src/utils"
 
 let stateId = 0
 let nextId = 0
 let refreshId = 0
 
 const IndexContext = React.createContext(0)
+const useProperty = Symbol("useProperty")
+const useEvent = Symbol("useEvent")
+const emit = Symbol("emit")
 
 export function useIndex() {
     return useContext(IndexContext)
@@ -126,17 +130,21 @@ function Dummy({ children }) {
     return &lt;>{children}&lt;/>
 }
 
+function withDefault(v, d) {
+    return v !== undefined ? v : d
+}
+
 function noop() {}
 noop.refresh = noop
 
 /**
- * @function TransformValue
+ * @callback TransformValue
  * @param {any} value - the value to be transformed
  * @returns {any} the transformed value
  */
 
 /**
- * @function Extractor
+ * @callback Extractor
  * @param {any} event - the parameter of the event handler
  * @returns {any} the extracted value
  */
@@ -170,13 +178,6 @@ export function createState(name) {
     return new State(name)
 }
 
-function emit(target, path, property, value) {
-    targetEvents.emit(
-        `${[...path, ...getPath(property)].filter(Boolean).join(".")}`,
-        value
-    )
-}
-
 function getTargetFrom(property, target, path, stack) {
     for (let i = 0; i &lt; property.length &amp;&amp; i &lt; stack.length - 1; i++) {
         if (property[i] === "^") {
@@ -190,6 +191,40 @@ function getTargetFrom(property, target, path, stack) {
     return [property.replace(/^\^*/g, ""), target, path]
 }
 
+function useRefresh() {
+    const [id, refresh] = useState(-1)
+    const currentRefresh = useRef()
+    React.useEffect(() => {
+        return () => {
+            currentRefresh.current = noop
+        }
+    }, [])
+
+    currentRefresh.current = refresh
+    _refresh.id = id
+    return _refresh
+
+    function _refresh() {
+        currentRefresh.current(refreshId++)
+    }
+}
+
+function useClearableState(initial) {
+    const [value, setValue] = React.useState(initial)
+    const setter = useRef()
+    setter.current = setValue
+    React.useEffect(() => {
+        return () => {
+            setter.current = noop
+        }
+    }, [])
+    return [value, _setValue]
+
+    function _setValue(v) {
+        setter.current(v)
+    }
+}
+
 const useTargetContext = Symbol("useTargetContext")
 
 /**
@@ -199,6 +234,101 @@ const useTargetContext = Symbol("useTargetContext")
 class State {
     [useTargetContext]() {
         return useContext(this.context)
+    }
+
+    [useProperty](property, handler, target) {
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
+        target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
+        if (handler) {
+            this[useEvent](
+                getPatterns(target, [...path, ...getPath(property)]),
+                handler
+            )
+        }
+        return { value: get(target, property), target, path, property }
+    }
+
+    /**
+     * Provides a handler that is called when a property value has been
+     * updated
+     * @param {string} property - the property that is updated
+     * @param {function} handler - the handler for the property change, it will be
+     * called with the updated value
+     * @param {object} [target] - an optional target override
+     * @example
+     * import debounce from 'lodash/debounce'
+     *
+     * function Component() {
+     *     const saveProfile = React.useMemo(()=>debounce(_saveProfile, 300), [])
+     *     globalState.useChange("profile.**", saveProfile)
+     *
+     *     function saveProfile(profile) {
+     *         localStorage.setItem("profile", JSON.stringify(profile))
+     *     }
+     * }
+     */
+    useChange(property, handler, target) {
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
+        target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
+
+        this[useEvent](
+            getPatterns(target, [...path, ...getPath(property)]),
+            () => {
+                const value = get(target, property)
+                handler(value)
+            }
+        )
+    }
+
+    /**
+     * Creates a calculation that depends on other property values
+     * and is automatically updated when they change
+     * @param {string} property - the property to be created
+     * @param {string[]} dependencies - an array of dependencies for the property,
+     * the update function will be passed the values of these
+     * @param {function} fn - a function that will be called with the dependency
+     * values and returns the updated calculation
+     * @param {any} [target] - an override for the current target (rarely used)
+     * @example
+     * function Component() {
+     *     globalState.useCalculation("profile.fullName", ["profile.firstName", "profile.lastName"],
+     *         (firstName, lastName) => `${firstName} ${lastName}`
+     *     )
+     * }
+     *
+     * function Label({value, ...props}) {
+     *     return &lt;div {...props}>{value}&lt;/label>
+     * }
+     *
+     * const BoundLabel = globalState.bind({component: &lt;Label className={"label"}/> })
+     *
+     * function FullNameLabelExample() {
+     *     return &lt;Label property="profile.fullName" />
+     * }
+     */
+    useCalculation(property, dependencies, fn, target) {
+        let { target: existingTarget, path, stack } = this[useTargetContext]()
+        target = target || existingTarget
+        ;[property, target, path] = getTargetFrom(property, target, path, stack)
+        const update = React.useMemo(() => _update.bind(this), [])
+        for (let dependency of dependencies) {
+            this[useEvent](
+                getPatterns(target, [...path, ...getPath(dependency)]),
+                update
+            )
+        }
+        update()
+        function _update() {
+            const values = dependencies.map((d) => {
+                return get(target, d)
+            })
+            const newValue = fn.apply(this, values)
+            console.log(newValue)
+            set(target, property, newValue)
+            this[emit](target, path, property, newValue)
+        }
     }
 
     /**
@@ -238,26 +368,20 @@ class State {
         } = {}
     ) {
         const changed = useRef(false)
-        let { target: existingTarget, path, stack } = this[useTargetContext]()
-        target = target || existingTarget
-        ;[property, target, path] = getTargetFrom(property, target, path, stack)
-        const value = useRef(transformIn(get(target, property, defaultValue)))
-        const [localValue, setLocalValue] = React.useState(value.current)
+        let rawValue, path
+        ;({ value: rawValue, target, property, path } = this[useProperty](
+            property,
+            update,
+            target
+        ))
 
-        useEvent(
-            getPatterns(target, [...path, ...getPath(property), "**"]),
-            update
-        )
-        const [, refresh] = useState(-1)
-        const currentRefresh = useRef()
-        React.useEffect(() => {
-            return () => {
-                currentRefresh.current = noop
-            }
+        const value = useRef(transformIn(withDefault(rawValue, defaultValue)))
+        const [localValue, setLocalValue] = useClearableState(value.current)
+        const [updateValue, blur] = React.useMemo(() => {
+            return [_updateValue.bind(this), _blur.bind(this)]
         }, [])
-        setLocalValue.refresh = refresh
-        currentRefresh.current = setLocalValue
 
+        const refresh = useRefresh()
         return {
             [attribute]: localValue,
             [event]: updateValue,
@@ -268,33 +392,32 @@ class State {
             let newValue = transformIn(get(target, property, defaultValue))
             if (newValue !== value.current) {
                 value.current = newValue
-                currentRefresh.current(value.current)
-
+                setLocalValue(value.current)
             }
-            currentRefresh.current.refresh(nextId++)
+            refresh()
         }
 
-        function updateValue(...params) {
+        function _updateValue(...params) {
             let currentValue = extract(...params)
             const newValue = transformOut(currentValue)
 
             if (updateOnBlur) {
                 value.current = newValue
                 changed.current = true
-                currentRefresh.current(currentValue)
+                setLocalValue(currentValue)
             } else {
                 set(target, property, newValue)
                 onChange(newValue)
-                emit(target, path, property, newValue)
+                this[emit](target, path, property, newValue)
             }
         }
 
-        function blur() {
+        function _blur() {
             if (changed.current) {
                 changed.current = false
                 set(target, property, value.current)
                 onChange(value.current)
-                emit(target, path, property, value.current)
+                this[emit](target, path, property, value.current)
             }
         }
     }
@@ -307,6 +430,30 @@ class State {
             path: [],
             stack: []
         })
+        this.events = new Events()
+
+        this[useEvent] = (pattern, handler, context) => {
+            if (context) {
+                handler = handler.bind(context)
+            }
+            useEffect(() => {
+                ensureArray(pattern).forEach((pattern) =>
+                    this.events.on(pattern, handler)
+                )
+                return () => {
+                    ensureArray(pattern).forEach((pattern) =>
+                        this.events.off(pattern, handler)
+                    )
+                }
+            }, [pattern])
+        }
+
+        this[emit] = (target, path, property, value) => {
+            this.events.emit(
+                `${[...path, ...getPath(property)].filter(Boolean).join(".")}`,
+                value
+            )
+        }
 
         this.Bind = this.Bind.bind(this)
         this.Bound = this.Bound.bind(this)
@@ -335,37 +482,34 @@ class State {
      * }
      */
     useState(property = "", defaultValue, target) {
-        let { target: existingTarget, path, stack } = this[useTargetContext]()
-        target = target || existingTarget
-        ;[property, target, path] = getTargetFrom(property, target, path, stack)
-        const value = get(target, property, defaultValue)
-        const [id, refresh] = useState(-1)
-        const currentRefresh = useRef()
-        React.useEffect(() => {
-            return () => {
-                currentRefresh.current = noop
-            }
+        const updateValue = React.useMemo(() => {
+            const updateMany = _updateMany.bind(this)
+            const updateValue = _updateValue.bind(this)
+            updateValue.set = updateMany
+            return updateValue
         }, [])
+        const { value, path } = this[useProperty](property, update, target)
 
-        currentRefresh.current = refresh
-        useEvent(getPatterns(target, [...path, ...getPath(property)]), update)
-        updateValue.set = updateMany
-        return [value, updateValue, id]
+        const refresh = useRefresh()
+        return [withDefault(value, defaultValue), updateValue, refresh.id]
 
         function update() {
-            currentRefresh.current(refreshId++)
+            refresh()
         }
 
-        function updateValue(newValue) {
+        function _updateValue(newValue) {
             if (typeof newValue === "function") {
                 newValue = newValue(get(target, property, defaultValue))
             }
             set(target, property, newValue)
-            emit(target, path, property, newValue)
+            this[emit](target, path, property, newValue)
         }
 
-        function updateMany(newValue) {
-            recurseSet(newValue, value, [...path, ...getPath(property)])
+        function _updateMany(newValue) {
+            recurseSet.call(this, newValue, value, [
+                ...path,
+                ...getPath(property)
+            ])
         }
     }
 
@@ -380,24 +524,41 @@ class State {
      * @param {string} property - the property to set
      * @param {any} [target] - an override for the current value
      * @returns {Setter} - a value to set other values
+     * @example
+     *
+     * function Component() {
+     *     const setValue = someState.useSetter("some.object.property")
+     *     return &lt;Button onClick={clear}>Clear&lt;/Button>
+     *     function clear() {
+     *         setValue({})
+     *     }
+     * }
+     *
      */
     useSetter(property = "", target) {
-        let { target: existingTarget, path, stack } = this[useTargetContext]()
-        target = target || existingTarget
-        ;[property, target, path] = getTargetFrom(property, target, path, stack)
-        updateValue.set = updateMany
-        return updateValue
+        let path
+        ;({ property, target, path } = this[useProperty](
+            property,
+            null,
+            target
+        ))
+        return React.useMemo(() => {
+            const updateMany = _updateMany.bind(this)
+            const updateValue = _updateValue.bind(this)
+            updateValue.set = updateMany
+            return updateValue
+        }, [])
 
-        function updateValue(newValue) {
+        function _updateValue(newValue) {
             if (typeof newValue === "function") {
                 newValue = newValue(get(target, property))
             }
             set(target, property, newValue)
-            emit(target, path, property, newValue)
+            this[emit](target, path, property, newValue)
         }
 
-        function updateMany(newValue) {
-            recurseSet(newValue, get(target, property, {}), [
+        function _updateMany(newValue) {
+            recurseSet.call(this, newValue, get(target, property, {}), [
                 ...path,
                 ...getPath(property)
             ])
@@ -408,27 +569,23 @@ class State {
      * Causes the caller to refresh if any of the paths change
      * @param {Array.&lt;string>|string} paths - the paths to refresh on
      * @returns {number} the current unique id of the refresh
+     * @example
+     * function Component() {
+     *     const [style] = globalState.useState("style")
+     *     // Update if any sub property of style changes
+     *     globalState.useRefresh("style.**")
+     *     return &lt;div style={{...style}}>Some Content&lt;/div>
+     * }
      */
     useRefresh(...paths) {
         const { target, path } = this[useTargetContext]()
-        const [id, refresh] = useState(-1)
-        const currentRefresh = useRef()
-        currentRefresh.current = refresh
-        React.useEffect(() => {
-            return () => {
-                currentRefresh.current = noop
-            }
-        }, [])
-
         const patterns = []
         for (let p of paths.flat(Infinity)) {
             patterns.push(...getPatterns(target, [...path, ...getPath(p)]))
         }
-        useEvent(Array.from(new Set(patterns)), update)
-        return id
-        function update() {
-            currentRefresh.current(refreshId++)
-        }
+        const refresh = useRefresh()
+        this[useEvent](Array.from(new Set(patterns)), refresh)
+        return refresh.id
     }
 
     /**
@@ -541,30 +698,33 @@ function Bound({
 }
 
 Bound.propTypes = {
-  attribute: PropTypes.string,
-  blurEvent: PropTypes.any,
-  component: PropTypes.object,
-  defaultValue: PropTypes.any,
-  event: PropTypes.string,
-  extract: PropTypes.func,
-  property: PropTypes.string,
-  target: PropTypes.object,
-  transformIn: PropTypes.func,
-  transformOut: PropTypes.func,
-  updateOnBlur: PropTypes.any
+    attribute: PropTypes.string,
+    blurEvent: PropTypes.any,
+    component: PropTypes.object,
+    defaultValue: PropTypes.any,
+    event: PropTypes.string,
+    extract: PropTypes.func,
+    property: PropTypes.string,
+    target: PropTypes.object,
+    transformIn: PropTypes.func,
+    transformOut: PropTypes.func,
+    updateOnBlur: PropTypes.any
 }
 
 Bound.defaultProps = {
-  component: &lt;input />
+    component: &lt;input />
 }
 
 function recurseSet(newValue, target, path = []) {
     for (let [key, updatedValue] of Object.entries(newValue)) {
         if (typeof updatedValue === "object" &amp;&amp; !Array.isArray(updatedValue)) {
-            recurseSet(updatedValue, get(target, key, {}), [...path, key])
+            recurseSet.call(this, updatedValue, get(target, key, {}), [
+                ...path,
+                key
+            ])
         } else {
             set(target, key, updatedValue)
-            emit(target, path, `${key}`, updatedValue)
+            this[emit](target, path, `${key}`, updatedValue)
         }
     }
 }
@@ -614,17 +774,11 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
     } else {
         target = existingTarget
     }
-    const [finalTarget, setFinalTarget] = React.useState(target)
-    const currentTarget = useRef()
-    currentTarget.current = setFinalTarget
-    React.useEffect(() => {
-        return () => {
-            currentTarget.current = noop
-        }
-    }, [])
-    useEvent(`${targetIds.get(finalTarget)}`, update)
+    const [finalTarget, setFinalTarget] = useClearableState(target)
+
+    this[useEvent](`${targetIds.get(finalTarget)}`, update)
     let updatedPath = [...path, ...getPath(property)]
-    useEvent(
+    this[useEvent](
         getPatterns(finalTarget, updatedPath).map((p) => `${p}.**`),
         () => onChange(finalTarget)
     )
@@ -651,7 +805,7 @@ function Bind({ target, property = "", onChange = () => {}, children }) {
     function update(newValue) {
         targetIds.set(newValue, targetIds.get(target))
         innerId.current = refreshId++
-        currentTarget.current(newValue)
+        setFinalTarget(newValue)
     }
 
     function ArrayContents() {
