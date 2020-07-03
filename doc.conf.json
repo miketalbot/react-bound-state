@@ -5,7 +5,7 @@
         "dictionaries": ["jsdoc", "closure"]
     },
     "source": {
-        "include": ["src/lib/observable-state.js", "src/lib/emitter.js", "src/lib/event-bus.js"]
+        "include": ["src/lib/observable-state.js", "src/lib/emitter.js"]
     },
     "opts": {
         "destination": "./docs/",
