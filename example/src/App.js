@@ -49,6 +49,14 @@ export const Input = globalState.bind({
     component: <TextField variant={"outlined"} fullWidth />
 })
 
+function Div({value}) {
+    return <Box mt={1}>{value}</Box>
+}
+
+export const Label = globalState.bind({
+    component: <Div/>
+})
+
 export const Combo = styleState.bind({
     extract(_, value) {
         return value
@@ -138,6 +146,9 @@ function Example() {
     const { set } = styleState.useSetter("style")
     const setColor = styleState.useSetter("style.color")
     const setWeight = styleState.useSetter("style.fontWeight")
+    globalState.useCalculation("_.combined", ["profile.name", "profile.location"], function(name, location) {
+        return `${name} (${location}) - changed ${new Date()}`
+    })
     console.log("draw Example")
     return (
         <Grid container spacing={2}>

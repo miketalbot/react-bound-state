@@ -1,6 +1,10 @@
+function isValidPropertyPathElement(v) {
+    return v && v !== '**'
+}
+
 export function get(object, path, defaultValue) {
     path = replaceArray(path)
-    const parts = path.split(".").filter(Boolean)
+    const parts = path.split(".").filter(isValidPropertyPathElement)
     if (parts.length === 0) return object
     for (let i = 0, l = parts.length - 1; i < l; i++) {
         const part = parts[i]
@@ -21,13 +25,17 @@ export function get(object, path, defaultValue) {
 }
 
 export function replaceArray(path) {
-    return path.replace(/^\./, "").replace(/\[/g, ".").replace(/]/g, "")
+    try {
+        return path.replace(/^\./, "").replace(/\[/g, ".").replace(/]/g, "")
+    } catch(e) {
+        console.error(`Error ${e.message} - ${path} (${typeof path})`)
+        throw e
+    }
 }
 
 export function set(object, path, value) {
-    const start = object
     path = replaceArray(path)
-    const parts = path.split(".").filter(Boolean)
+    const parts = path.split(".").filter(isValidPropertyPathElement)
     if (parts.length === 0) return
     for (let i = 0, l = parts.length - 1; i < l; i++) {
         const part = parts[i]

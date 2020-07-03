@@ -1171,9 +1171,13 @@ if (process.env.NODE_ENV !== 'production') {
 }
 });
 
+function isValidPropertyPathElement(v) {
+  return v && v !== '**';
+}
+
 function get(object, path, defaultValue) {
   path = replaceArray(path);
-  var parts = path.split(".").filter(Boolean);
+  var parts = path.split(".").filter(isValidPropertyPathElement);
   if (parts.length === 0) return object;
 
   for (var i = 0, l = parts.length - 1; i < l; i++) {
@@ -1196,11 +1200,16 @@ function get(object, path, defaultValue) {
   return value;
 }
 function replaceArray(path) {
-  return path.replace(/^\./, "").replace(/\[/g, ".").replace(/]/g, "");
+  try {
+    return path.replace(/^\./, "").replace(/\[/g, ".").replace(/]/g, "");
+  } catch (e) {
+    console.error("Error " + e.message + " - " + path + " (" + typeof path + ")");
+    throw e;
+  }
 }
 function set(object, path, value) {
   path = replaceArray(path);
-  var parts = path.split(".").filter(Boolean);
+  var parts = path.split(".").filter(isValidPropertyPathElement);
   if (parts.length === 0) return;
 
   for (var i = 0, l = parts.length - 1; i < l; i++) {
@@ -1673,29 +1682,8 @@ Events.prototype.removeEventListener = Events.prototype.off;
 Events.prototype.addListener = Events.prototype.on;
 Events.prototype.removeListener = Events.prototype.off;
 
-var targetEvents = new Events();
 var targetIds = new WeakMap();
 
-function ensureArray(v) {
-  return (Array.isArray(v) ? v : [v]).filter(Boolean);
-}
-
-function useEvent(pattern, handler, context) {
-  if (context) {
-    handler = handler.bind(context);
-  }
-
-  React.useEffect(function () {
-    ensureArray(pattern).forEach(function (pattern) {
-      return targetEvents.on(pattern, handler);
-    });
-    return function () {
-      ensureArray(pattern).forEach(function (pattern) {
-        return targetEvents.off(pattern, handler);
-      });
-    };
-  }, [pattern]);
-}
 function getPath(property) {
   return replaceArray(property).split(".").filter(Boolean);
 }
@@ -1724,486 +1712,6 @@ function standardExtract(event) {
 function returnValue(v) {
   return v;
 }
-
-var stateId = 0;
-var nextId = 0;
-var refreshId = 0;
-var IndexContext = React__default.createContext(0);
-function useIndex() {
-  return React.useContext(IndexContext);
-}
-
-function Dummy(_ref) {
-  var children = _ref.children;
-  return /*#__PURE__*/React__default.createElement(Fragment, null, children);
-}
-
-function noop() {}
-
-noop.refresh = noop;
-function createState(name) {
-  return new State(name);
-}
-
-function emit(target, path, property, value) {
-  targetEvents.emit("" + [].concat(path, getPath(property)).filter(Boolean).join("."), value);
-}
-
-function getTargetFrom(property, target, path, stack) {
-  for (var i = 0; i < property.length && i < stack.length - 1; i++) {
-    if (property[i] === "^") {
-      var step = stack[stack.length - 2 - i];
-      target = step.target;
-      path = step.path;
-    } else {
-      break;
-    }
-  }
-
-  return [property.replace(/^\^*/g, ""), target, path];
-}
-
-var useTargetContext = Symbol("useTargetContext");
-
-var State = /*#__PURE__*/function () {
-  var _proto = State.prototype;
-
-  _proto[useTargetContext] = function () {
-    return React.useContext(this.context);
-  };
-
-  _proto.useBinding = function useBinding(property, _temp) {
-    var _ref3;
-
-    var _ref2 = _temp === void 0 ? {} : _temp,
-        defaultValue = _ref2.defaultValue,
-        _ref2$transformIn = _ref2.transformIn,
-        transformIn = _ref2$transformIn === void 0 ? returnValue : _ref2$transformIn,
-        _ref2$transformOut = _ref2.transformOut,
-        transformOut = _ref2$transformOut === void 0 ? returnValue : _ref2$transformOut,
-        updateOnBlur = _ref2.updateOnBlur,
-        _ref2$extract = _ref2.extract,
-        extract = _ref2$extract === void 0 ? standardExtract : _ref2$extract,
-        _ref2$onChange = _ref2.onChange,
-        onChange = _ref2$onChange === void 0 ? noop : _ref2$onChange,
-        _ref2$attribute = _ref2.attribute,
-        attribute = _ref2$attribute === void 0 ? "value" : _ref2$attribute,
-        _ref2$event = _ref2.event,
-        event = _ref2$event === void 0 ? "onChange" : _ref2$event,
-        _ref2$blurEvent = _ref2.blurEvent,
-        blurEvent = _ref2$blurEvent === void 0 ? "onBlur" : _ref2$blurEvent,
-        target = _ref2.target;
-
-    var changed = React.useRef(false);
-
-    var _this$useTargetContex = this[useTargetContext](),
-        existingTarget = _this$useTargetContex.target,
-        path = _this$useTargetContex.path,
-        stack = _this$useTargetContex.stack;
-
-    target = target || existingTarget;
-
-    var _getTargetFrom = getTargetFrom(property, target, path, stack);
-
-    property = _getTargetFrom[0];
-    target = _getTargetFrom[1];
-    path = _getTargetFrom[2];
-    var value = React.useRef(transformIn(get(target, property, defaultValue)));
-
-    var _React$useState = React__default.useState(value.current),
-        localValue = _React$useState[0],
-        setLocalValue = _React$useState[1];
-
-    useEvent(getPatterns(target, [].concat(path, getPath(property), ["**"])), update);
-
-    var _useState2 = React.useState(-1),
-        refresh = _useState2[1];
-
-    var currentRefresh = React.useRef();
-    React__default.useEffect(function () {
-      return function () {
-        currentRefresh.current = noop;
-      };
-    }, []);
-    setLocalValue.refresh = refresh;
-    currentRefresh.current = setLocalValue;
-    return _ref3 = {}, _ref3[attribute] = localValue, _ref3[event] = updateValue, _ref3[blurEvent] = blur, _ref3;
-
-    function update() {
-      var newValue = transformIn(get(target, property, defaultValue));
-
-      if (newValue !== value.current) {
-        value.current = newValue;
-        currentRefresh.current(value.current);
-      }
-
-      currentRefresh.current.refresh(nextId++);
-    }
-
-    function updateValue() {
-      var currentValue = extract.apply(void 0, arguments);
-      var newValue = transformOut(currentValue);
-
-      if (updateOnBlur) {
-        value.current = newValue;
-        changed.current = true;
-        currentRefresh.current(currentValue);
-      } else {
-        set(target, property, newValue);
-        onChange(newValue);
-        emit(target, path, property, newValue);
-      }
-    }
-
-    function blur() {
-      if (changed.current) {
-        changed.current = false;
-        set(target, property, value.current);
-        onChange(value.current);
-        emit(target, path, property, value.current);
-      }
-    }
-  };
-
-  function State(name) {
-    this.Bind = Bind;
-    this.Bound = Bound;
-    this.name = name;
-    this.id = stateId++;
-    this.context = React__default.createContext({
-      target: null,
-      path: [],
-      stack: []
-    });
-    this.Bind = this.Bind.bind(this);
-    this.Bound = this.Bound.bind(this);
-    this.bind = this.bind.bind(this);
-    this.useState = this.useState.bind(this);
-    this.useCurrentPath = this.useCurrentPath.bind(this);
-    this.useCurrentTarget = this.useCurrentTarget.bind(this);
-  }
-
-  _proto.useState = function useState(property, defaultValue, target) {
-    if (property === void 0) {
-      property = "";
-    }
-
-    var _this$useTargetContex2 = this[useTargetContext](),
-        existingTarget = _this$useTargetContex2.target,
-        path = _this$useTargetContex2.path,
-        stack = _this$useTargetContex2.stack;
-
-    target = target || existingTarget;
-
-    var _getTargetFrom2 = getTargetFrom(property, target, path, stack);
-
-    property = _getTargetFrom2[0];
-    target = _getTargetFrom2[1];
-    path = _getTargetFrom2[2];
-    var value = get(target, property, defaultValue);
-
-    var _useState3 = React.useState(-1),
-        id = _useState3[0],
-        refresh = _useState3[1];
-
-    var currentRefresh = React.useRef();
-    React__default.useEffect(function () {
-      return function () {
-        currentRefresh.current = noop;
-      };
-    }, []);
-    currentRefresh.current = refresh;
-    useEvent(getPatterns(target, [].concat(path, getPath(property))), update);
-    updateValue.set = updateMany;
-    return [value, updateValue, id];
-
-    function update() {
-      currentRefresh.current(refreshId++);
-    }
-
-    function updateValue(newValue) {
-      if (typeof newValue === "function") {
-        newValue = newValue(get(target, property, defaultValue));
-      }
-
-      set(target, property, newValue);
-      emit(target, path, property, newValue);
-    }
-
-    function updateMany(newValue) {
-      recurseSet(newValue, value, [].concat(path, getPath(property)));
-    }
-  };
-
-  _proto.useSetter = function useSetter(property, target) {
-    if (property === void 0) {
-      property = "";
-    }
-
-    var _this$useTargetContex3 = this[useTargetContext](),
-        existingTarget = _this$useTargetContex3.target,
-        path = _this$useTargetContex3.path,
-        stack = _this$useTargetContex3.stack;
-
-    target = target || existingTarget;
-
-    var _getTargetFrom3 = getTargetFrom(property, target, path, stack);
-
-    property = _getTargetFrom3[0];
-    target = _getTargetFrom3[1];
-    path = _getTargetFrom3[2];
-    updateValue.set = updateMany;
-    return updateValue;
-
-    function updateValue(newValue) {
-      if (typeof newValue === "function") {
-        newValue = newValue(get(target, property));
-      }
-
-      set(target, property, newValue);
-      emit(target, path, property, newValue);
-    }
-
-    function updateMany(newValue) {
-      recurseSet(newValue, get(target, property, {}), [].concat(path, getPath(property)));
-    }
-  };
-
-  _proto.useRefresh = function useRefresh() {
-    var _this$useTargetContex4 = this[useTargetContext](),
-        target = _this$useTargetContex4.target,
-        path = _this$useTargetContex4.path;
-
-    var _useState4 = React.useState(-1),
-        id = _useState4[0],
-        refresh = _useState4[1];
-
-    var currentRefresh = React.useRef();
-    currentRefresh.current = refresh;
-    React__default.useEffect(function () {
-      return function () {
-        currentRefresh.current = noop;
-      };
-    }, []);
-    var patterns = [];
-
-    for (var _len = arguments.length, paths = new Array(_len), _key = 0; _key < _len; _key++) {
-      paths[_key] = arguments[_key];
-    }
-
-    for (var _iterator = _createForOfIteratorHelperLoose(paths.flat(Infinity)), _step; !(_step = _iterator()).done;) {
-      var p = _step.value;
-      patterns.push.apply(patterns, getPatterns(target, [].concat(path, getPath(p))));
-    }
-
-    useEvent(Array.from(new Set(patterns)), update);
-    return id;
-
-    function update() {
-      currentRefresh.current(refreshId++);
-    }
-  };
-
-  _proto.bind = function bind(bindingProps) {
-    var self = this;
-    return function (_ref4) {
-      var _ref4$state = _ref4.state,
-          state = _ref4$state === void 0 ? self : _ref4$state,
-          props = _objectWithoutPropertiesLoose(_ref4, ["state"]);
-
-      return /*#__PURE__*/React__default.createElement(state.Bound, _extends({}, bindingProps, props));
-    };
-  };
-
-  _proto.useCurrentTarget = function useCurrentTarget() {
-    var _this$useTargetContex5 = this[useTargetContext](),
-        target = _this$useTargetContex5.target;
-
-    return target;
-  };
-
-  _proto.useCurrentPath = function useCurrentPath() {
-    var _this$useTargetContex6 = this[useTargetContext](),
-        path = _this$useTargetContex6.path;
-
-    return path;
-  };
-
-  return State;
-}();
-
-function Bound(_ref5) {
-  var _ref5$component = _ref5.component,
-      component = _ref5$component === void 0 ? /*#__PURE__*/React__default.createElement("input", null) : _ref5$component,
-      property = _ref5.property,
-      defaultValue = _ref5.defaultValue,
-      transformIn = _ref5.transformIn,
-      transformOut = _ref5.transformOut,
-      extract = _ref5.extract,
-      attribute = _ref5.attribute,
-      updateOnBlur = _ref5.updateOnBlur,
-      blurEvent = _ref5.blurEvent,
-      event = _ref5.event,
-      target = _ref5.target,
-      other = _objectWithoutPropertiesLoose(_ref5, ["component", "property", "defaultValue", "transformIn", "transformOut", "extract", "attribute", "updateOnBlur", "blurEvent", "event", "target"]);
-
-  var Component = component && component.type || Dummy;
-  var props = component && component.props || {};
-  var extraProps = this.useBinding(property, {
-    defaultValue: defaultValue,
-    transformIn: transformIn,
-    transformOut: transformOut,
-    extract: extract,
-    attribute: attribute,
-    event: event,
-    target: target,
-    blurEvent: blurEvent,
-    updateOnBlur: updateOnBlur
-  });
-  return /*#__PURE__*/React__default.createElement(Component, _extends({}, extraProps, props, other));
-}
-
-Bound.propTypes = {
-  attribute: propTypes.string,
-  blurEvent: propTypes.any,
-  component: propTypes.object,
-  defaultValue: propTypes.any,
-  event: propTypes.string,
-  extract: propTypes.func,
-  property: propTypes.string,
-  target: propTypes.object,
-  transformIn: propTypes.func,
-  transformOut: propTypes.func,
-  updateOnBlur: propTypes.any
-};
-Bound.defaultProps = {
-  component: /*#__PURE__*/React__default.createElement("input", null)
-};
-
-function recurseSet(newValue, target, path) {
-  if (path === void 0) {
-    path = [];
-  }
-
-  for (var _i = 0, _Object$entries = Object.entries(newValue); _i < _Object$entries.length; _i++) {
-    var _Object$entries$_i = _Object$entries[_i],
-        key = _Object$entries$_i[0],
-        updatedValue = _Object$entries$_i[1];
-
-    if (typeof updatedValue === "object" && !Array.isArray(updatedValue)) {
-      recurseSet(updatedValue, get(target, key, {}), [].concat(path, [key]));
-    } else {
-      set(target, key, updatedValue);
-      emit(target, path, "" + key, updatedValue);
-    }
-  }
-}
-
-function Bind(_ref6) {
-  var target = _ref6.target,
-      _ref6$property = _ref6.property,
-      property = _ref6$property === void 0 ? "" : _ref6$property,
-      _ref6$onChange = _ref6.onChange,
-      onChange = _ref6$onChange === void 0 ? function () {} : _ref6$onChange,
-      children = _ref6.children;
-  var self = this;
-  var innerId = React__default.useRef(refreshId++);
-
-  var _this$useTargetContex7 = this[useTargetContext](),
-      existingTarget = _this$useTargetContex7.target,
-      path = _this$useTargetContex7.path,
-      stack = _this$useTargetContex7.stack;
-
-  if (target && !targetIds.has(target)) {
-    targetIds.set(target, nextId++);
-    path = ["" + targetIds.get(target)];
-  } else if (target) {
-    path = ["" + targetIds.get(target)];
-  } else {
-    target = existingTarget;
-  }
-
-  var _React$useState2 = React__default.useState(target),
-      finalTarget = _React$useState2[0],
-      setFinalTarget = _React$useState2[1];
-
-  var currentTarget = React.useRef();
-  currentTarget.current = setFinalTarget;
-  React__default.useEffect(function () {
-    return function () {
-      currentTarget.current = noop;
-    };
-  }, []);
-  useEvent("" + targetIds.get(finalTarget), update);
-  var updatedPath = [].concat(path, getPath(property));
-  useEvent(getPatterns(finalTarget, updatedPath).map(function (p) {
-    return p + ".**";
-  }), function () {
-    return onChange(finalTarget);
-  });
-
-  var _this$useState = this.useState(property, {}, finalTarget),
-      subTarget = _this$useState[0],
-      id = _this$useState[3];
-
-  if (Array.isArray(subTarget)) {
-    return /*#__PURE__*/React__default.createElement(ArrayContents, {
-      key: id
-    });
-  } else {
-    if (typeof subTarget !== "object") throw new Error("You must bind to an object or an array");
-    return /*#__PURE__*/React__default.createElement(this.context.Provider, {
-      key: id + ":" + innerId.current,
-      value: {
-        target: subTarget,
-        path: updatedPath,
-        stack: [].concat(stack, [{
-          target: subTarget,
-          path: updatedPath
-        }])
-      }
-    }, children);
-  }
-
-  function update(newValue) {
-    targetIds.set(newValue, targetIds.get(target));
-    innerId.current = refreshId++;
-    currentTarget.current(newValue);
-  }
-
-  function ArrayContents() {
-    var output = [];
-
-    for (var i = 0; i < subTarget.length; i++) {
-      output.push( /*#__PURE__*/React__default.createElement(Item, {
-        key: i,
-        index: i
-      }));
-    }
-
-    return output;
-  }
-
-  function Item(_ref7) {
-    var index = _ref7.index;
-    return /*#__PURE__*/React__default.createElement(IndexContext.Provider, {
-      value: index
-    }, /*#__PURE__*/React__default.createElement(self.Bind, {
-      property: property + "." + index
-    }, children));
-  }
-}
-
-Bind.propTypes = {
-  children: propTypes.any,
-  onChange: propTypes.func,
-  property: propTypes.string.isRequired,
-  target: propTypes.object
-};
-Bind.defaultProps = {
-  onChange: function onChange() {},
-  property: ""
-};
 
 function sortByExtraction(extract) {
   return function (a, b) {
@@ -2264,7 +1772,7 @@ function setEventSource(newSource) {
 function stopPropagationAndExit() {
   throw new Cancel();
 }
-function useEvent$1(pattern, handler, priority) {
+function useEvent(pattern, handler, priority) {
   React__default.useEffect(function () {
     return handle(pattern, handler, priority);
   });
@@ -2433,17 +1941,610 @@ function plug(type, predicate, Component, priority) {
     }
   });
 }
-function ensureArray$1(item) {
+function ensureArray(item) {
   return Array.isArray(item) ? item : [item].filter(function (f) {
     return f !== undefined;
   });
 }
 
+var stateId = 0;
+var nextId = 0;
+var refreshId = 0;
+var IndexContext = React__default.createContext(0);
+var useProperty = Symbol("useProperty");
+var useEvent$1 = Symbol("useEvent");
+var emit = Symbol("emit");
+function useIndex() {
+  return React.useContext(IndexContext);
+}
+
+function Dummy(_ref) {
+  var children = _ref.children;
+  return /*#__PURE__*/React__default.createElement(Fragment, null, children);
+}
+
+function withDefault(v, d) {
+  return v !== undefined ? v : d;
+}
+
+function noop() {}
+
+noop.refresh = noop;
+function createState(name) {
+  return new State(name);
+}
+
+function getTargetFrom(property, target, path, stack) {
+  for (var i = 0; i < property.length && i < stack.length - 1; i++) {
+    if (property[i] === "^") {
+      var step = stack[stack.length - 2 - i];
+      target = step.target;
+      path = step.path;
+    } else {
+      break;
+    }
+  }
+
+  return [property.replace(/^\^*/g, ""), target, path];
+}
+
+function _useRefresh() {
+  var _useState = React.useState(-1),
+      id = _useState[0],
+      refresh = _useState[1];
+
+  var currentRefresh = React.useRef();
+  React__default.useEffect(function () {
+    return function () {
+      currentRefresh.current = noop;
+    };
+  }, []);
+  currentRefresh.current = refresh;
+  _refresh.id = id;
+  return _refresh;
+
+  function _refresh() {
+    currentRefresh.current(refreshId++);
+  }
+}
+
+function useClearableState(initial) {
+  var _React$useState = React__default.useState(initial),
+      value = _React$useState[0],
+      setValue = _React$useState[1];
+
+  var setter = React.useRef();
+  setter.current = setValue;
+  React__default.useEffect(function () {
+    return function () {
+      setter.current = noop;
+    };
+  }, []);
+  return [value, _setValue];
+
+  function _setValue(v) {
+    setter.current(v);
+  }
+}
+
+var useTargetContext = Symbol("useTargetContext");
+
+var State = /*#__PURE__*/function () {
+  var _proto = State.prototype;
+
+  _proto[useTargetContext] = function () {
+    return React.useContext(this.context);
+  };
+
+  _proto[useProperty] = function (property, handler, target) {
+    var _this$useTargetContex = this[useTargetContext](),
+        existingTarget = _this$useTargetContex.target,
+        path = _this$useTargetContex.path,
+        stack = _this$useTargetContex.stack;
+
+    target = target || existingTarget;
+
+    var _getTargetFrom = getTargetFrom(property, target, path, stack);
+
+    property = _getTargetFrom[0];
+    target = _getTargetFrom[1];
+    path = _getTargetFrom[2];
+
+    if (handler) {
+      this[useEvent$1](getPatterns(target, [].concat(path, getPath(property))), handler);
+    }
+
+    return {
+      value: get(target, property),
+      target: target,
+      path: path,
+      property: property
+    };
+  };
+
+  _proto.useChange = function useChange(property, handler, target) {
+    var _this$useTargetContex2 = this[useTargetContext](),
+        existingTarget = _this$useTargetContex2.target,
+        path = _this$useTargetContex2.path,
+        stack = _this$useTargetContex2.stack;
+
+    target = target || existingTarget;
+
+    var _getTargetFrom2 = getTargetFrom(property, target, path, stack);
+
+    property = _getTargetFrom2[0];
+    target = _getTargetFrom2[1];
+    path = _getTargetFrom2[2];
+    this[useEvent$1](getPatterns(target, [].concat(path, getPath(property))), function () {
+      var value = get(target, property);
+      handler(value);
+    });
+  };
+
+  _proto.useCalculation = function useCalculation(property, dependencies, fn, target) {
+    var _this = this;
+
+    var _this$useTargetContex3 = this[useTargetContext](),
+        existingTarget = _this$useTargetContex3.target,
+        path = _this$useTargetContex3.path,
+        stack = _this$useTargetContex3.stack;
+
+    target = target || existingTarget;
+
+    var _getTargetFrom3 = getTargetFrom(property, target, path, stack);
+
+    property = _getTargetFrom3[0];
+    target = _getTargetFrom3[1];
+    path = _getTargetFrom3[2];
+    var update = React__default.useMemo(function () {
+      return _update.bind(_this);
+    }, []);
+
+    for (var _iterator = _createForOfIteratorHelperLoose(dependencies), _step; !(_step = _iterator()).done;) {
+      var dependency = _step.value;
+      this[useEvent$1](getPatterns(target, [].concat(path, getPath(dependency))), update);
+    }
+
+    update();
+
+    function _update() {
+      var values = dependencies.map(function (d) {
+        return get(target, d);
+      });
+      var newValue = fn.apply(this, values);
+      console.log(newValue);
+      set(target, property, newValue);
+      this[emit](target, path, property, newValue);
+    }
+  };
+
+  _proto.useBinding = function useBinding(property, _temp) {
+    var _this2 = this,
+        _ref3;
+
+    var _ref2 = _temp === void 0 ? {} : _temp,
+        defaultValue = _ref2.defaultValue,
+        _ref2$transformIn = _ref2.transformIn,
+        transformIn = _ref2$transformIn === void 0 ? returnValue : _ref2$transformIn,
+        _ref2$transformOut = _ref2.transformOut,
+        transformOut = _ref2$transformOut === void 0 ? returnValue : _ref2$transformOut,
+        updateOnBlur = _ref2.updateOnBlur,
+        _ref2$extract = _ref2.extract,
+        extract = _ref2$extract === void 0 ? standardExtract : _ref2$extract,
+        _ref2$onChange = _ref2.onChange,
+        onChange = _ref2$onChange === void 0 ? noop : _ref2$onChange,
+        _ref2$attribute = _ref2.attribute,
+        attribute = _ref2$attribute === void 0 ? "value" : _ref2$attribute,
+        _ref2$event = _ref2.event,
+        event = _ref2$event === void 0 ? "onChange" : _ref2$event,
+        _ref2$blurEvent = _ref2.blurEvent,
+        blurEvent = _ref2$blurEvent === void 0 ? "onBlur" : _ref2$blurEvent,
+        target = _ref2.target;
+
+    var changed = React.useRef(false);
+    var rawValue, path;
+
+    var _this$useProperty = this[useProperty](property, update, target);
+
+    rawValue = _this$useProperty.value;
+    target = _this$useProperty.target;
+    property = _this$useProperty.property;
+    path = _this$useProperty.path;
+    var value = React.useRef(transformIn(withDefault(rawValue, defaultValue)));
+
+    var _useClearableState = useClearableState(value.current),
+        localValue = _useClearableState[0],
+        setLocalValue = _useClearableState[1];
+
+    var _React$useMemo = React__default.useMemo(function () {
+      return [_updateValue.bind(_this2), _blur.bind(_this2)];
+    }, []),
+        updateValue = _React$useMemo[0],
+        blur = _React$useMemo[1];
+
+    var refresh = _useRefresh();
+
+    return _ref3 = {}, _ref3[attribute] = localValue, _ref3[event] = updateValue, _ref3[blurEvent] = blur, _ref3;
+
+    function update() {
+      var newValue = transformIn(get(target, property, defaultValue));
+
+      if (newValue !== value.current) {
+        value.current = newValue;
+        setLocalValue(value.current);
+      }
+
+      refresh();
+    }
+
+    function _updateValue() {
+      var currentValue = extract.apply(void 0, arguments);
+      var newValue = transformOut(currentValue);
+
+      if (updateOnBlur) {
+        value.current = newValue;
+        changed.current = true;
+        setLocalValue(currentValue);
+      } else {
+        set(target, property, newValue);
+        onChange(newValue);
+        this[emit](target, path, property, newValue);
+      }
+    }
+
+    function _blur() {
+      if (changed.current) {
+        changed.current = false;
+        set(target, property, value.current);
+        onChange(value.current);
+        this[emit](target, path, property, value.current);
+      }
+    }
+  };
+
+  function State(name) {
+    var _this3 = this;
+
+    this.Bind = Bind;
+    this.Bound = Bound;
+    this.name = name;
+    this.id = stateId++;
+    this.context = React__default.createContext({
+      target: null,
+      path: [],
+      stack: []
+    });
+    this.events = new Events();
+
+    this[useEvent$1] = function (pattern, handler, context) {
+      if (context) {
+        handler = handler.bind(context);
+      }
+
+      React.useEffect(function () {
+        ensureArray(pattern).forEach(function (pattern) {
+          return _this3.events.on(pattern, handler);
+        });
+        return function () {
+          ensureArray(pattern).forEach(function (pattern) {
+            return _this3.events.off(pattern, handler);
+          });
+        };
+      }, [pattern]);
+    };
+
+    this[emit] = function (target, path, property, value) {
+      _this3.events.emit("" + [].concat(path, getPath(property)).filter(Boolean).join("."), value);
+    };
+
+    this.Bind = this.Bind.bind(this);
+    this.Bound = this.Bound.bind(this);
+    this.bind = this.bind.bind(this);
+    this.useState = this.useState.bind(this);
+    this.useCurrentPath = this.useCurrentPath.bind(this);
+    this.useCurrentTarget = this.useCurrentTarget.bind(this);
+  }
+
+  _proto.useState = function useState(property, defaultValue, target) {
+    var _this4 = this;
+
+    if (property === void 0) {
+      property = "";
+    }
+
+    var updateValue = React__default.useMemo(function () {
+      var updateMany = _updateMany.bind(_this4);
+
+      var updateValue = _updateValue.bind(_this4);
+
+      updateValue.set = updateMany;
+      return updateValue;
+    }, []);
+
+    var _this$useProperty2 = this[useProperty](property, update, target),
+        value = _this$useProperty2.value,
+        path = _this$useProperty2.path;
+
+    var refresh = _useRefresh();
+
+    return [withDefault(value, defaultValue), updateValue, refresh.id];
+
+    function update() {
+      refresh();
+    }
+
+    function _updateValue(newValue) {
+      if (typeof newValue === "function") {
+        newValue = newValue(get(target, property, defaultValue));
+      }
+
+      set(target, property, newValue);
+      this[emit](target, path, property, newValue);
+    }
+
+    function _updateMany(newValue) {
+      recurseSet.call(this, newValue, value, [].concat(path, getPath(property)));
+    }
+  };
+
+  _proto.useSetter = function useSetter(property, target) {
+    var _this5 = this;
+
+    if (property === void 0) {
+      property = "";
+    }
+
+    var path;
+
+    var _this$useProperty3 = this[useProperty](property, null, target);
+
+    property = _this$useProperty3.property;
+    target = _this$useProperty3.target;
+    path = _this$useProperty3.path;
+    return React__default.useMemo(function () {
+      var updateMany = _updateMany.bind(_this5);
+
+      var updateValue = _updateValue.bind(_this5);
+
+      updateValue.set = updateMany;
+      return updateValue;
+    }, []);
+
+    function _updateValue(newValue) {
+      if (typeof newValue === "function") {
+        newValue = newValue(get(target, property));
+      }
+
+      set(target, property, newValue);
+      this[emit](target, path, property, newValue);
+    }
+
+    function _updateMany(newValue) {
+      recurseSet.call(this, newValue, get(target, property, {}), [].concat(path, getPath(property)));
+    }
+  };
+
+  _proto.useRefresh = function useRefresh() {
+    var _this$useTargetContex4 = this[useTargetContext](),
+        target = _this$useTargetContex4.target,
+        path = _this$useTargetContex4.path;
+
+    var patterns = [];
+
+    for (var _len = arguments.length, paths = new Array(_len), _key = 0; _key < _len; _key++) {
+      paths[_key] = arguments[_key];
+    }
+
+    for (var _iterator2 = _createForOfIteratorHelperLoose(paths.flat(Infinity)), _step2; !(_step2 = _iterator2()).done;) {
+      var p = _step2.value;
+      patterns.push.apply(patterns, getPatterns(target, [].concat(path, getPath(p))));
+    }
+
+    var refresh = _useRefresh();
+
+    this[useEvent$1](Array.from(new Set(patterns)), refresh);
+    return refresh.id;
+  };
+
+  _proto.bind = function bind(bindingProps) {
+    var self = this;
+    return function (_ref4) {
+      var _ref4$state = _ref4.state,
+          state = _ref4$state === void 0 ? self : _ref4$state,
+          props = _objectWithoutPropertiesLoose(_ref4, ["state"]);
+
+      return /*#__PURE__*/React__default.createElement(state.Bound, _extends({}, bindingProps, props));
+    };
+  };
+
+  _proto.useCurrentTarget = function useCurrentTarget() {
+    var _this$useTargetContex5 = this[useTargetContext](),
+        target = _this$useTargetContex5.target;
+
+    return target;
+  };
+
+  _proto.useCurrentPath = function useCurrentPath() {
+    var _this$useTargetContex6 = this[useTargetContext](),
+        path = _this$useTargetContex6.path;
+
+    return path;
+  };
+
+  return State;
+}();
+
+function Bound(_ref5) {
+  var _ref5$component = _ref5.component,
+      component = _ref5$component === void 0 ? /*#__PURE__*/React__default.createElement("input", null) : _ref5$component,
+      property = _ref5.property,
+      defaultValue = _ref5.defaultValue,
+      transformIn = _ref5.transformIn,
+      transformOut = _ref5.transformOut,
+      extract = _ref5.extract,
+      attribute = _ref5.attribute,
+      updateOnBlur = _ref5.updateOnBlur,
+      blurEvent = _ref5.blurEvent,
+      event = _ref5.event,
+      target = _ref5.target,
+      other = _objectWithoutPropertiesLoose(_ref5, ["component", "property", "defaultValue", "transformIn", "transformOut", "extract", "attribute", "updateOnBlur", "blurEvent", "event", "target"]);
+
+  var Component = component && component.type || Dummy;
+  var props = component && component.props || {};
+  var extraProps = this.useBinding(property, {
+    defaultValue: defaultValue,
+    transformIn: transformIn,
+    transformOut: transformOut,
+    extract: extract,
+    attribute: attribute,
+    event: event,
+    target: target,
+    blurEvent: blurEvent,
+    updateOnBlur: updateOnBlur
+  });
+  return /*#__PURE__*/React__default.createElement(Component, _extends({}, extraProps, props, other));
+}
+
+Bound.propTypes = {
+  attribute: propTypes.string,
+  blurEvent: propTypes.any,
+  component: propTypes.object,
+  defaultValue: propTypes.any,
+  event: propTypes.string,
+  extract: propTypes.func,
+  property: propTypes.string,
+  target: propTypes.object,
+  transformIn: propTypes.func,
+  transformOut: propTypes.func,
+  updateOnBlur: propTypes.any
+};
+Bound.defaultProps = {
+  component: /*#__PURE__*/React__default.createElement("input", null)
+};
+
+function recurseSet(newValue, target, path) {
+  if (path === void 0) {
+    path = [];
+  }
+
+  for (var _i = 0, _Object$entries = Object.entries(newValue); _i < _Object$entries.length; _i++) {
+    var _Object$entries$_i = _Object$entries[_i],
+        key = _Object$entries$_i[0],
+        updatedValue = _Object$entries$_i[1];
+
+    if (typeof updatedValue === "object" && !Array.isArray(updatedValue)) {
+      recurseSet.call(this, updatedValue, get(target, key, {}), [].concat(path, [key]));
+    } else {
+      set(target, key, updatedValue);
+      this[emit](target, path, "" + key, updatedValue);
+    }
+  }
+}
+
+function Bind(_ref6) {
+  var target = _ref6.target,
+      _ref6$property = _ref6.property,
+      property = _ref6$property === void 0 ? "" : _ref6$property,
+      _ref6$onChange = _ref6.onChange,
+      onChange = _ref6$onChange === void 0 ? function () {} : _ref6$onChange,
+      children = _ref6.children;
+  var self = this;
+  var innerId = React__default.useRef(refreshId++);
+
+  var _this$useTargetContex7 = this[useTargetContext](),
+      existingTarget = _this$useTargetContex7.target,
+      path = _this$useTargetContex7.path,
+      stack = _this$useTargetContex7.stack;
+
+  if (target && !targetIds.has(target)) {
+    targetIds.set(target, nextId++);
+    path = ["" + targetIds.get(target)];
+  } else if (target) {
+    path = ["" + targetIds.get(target)];
+  } else {
+    target = existingTarget;
+  }
+
+  var _useClearableState2 = useClearableState(target),
+      finalTarget = _useClearableState2[0],
+      setFinalTarget = _useClearableState2[1];
+
+  this[useEvent$1]("" + targetIds.get(finalTarget), update);
+  var updatedPath = [].concat(path, getPath(property));
+  this[useEvent$1](getPatterns(finalTarget, updatedPath).map(function (p) {
+    return p + ".**";
+  }), function () {
+    return onChange(finalTarget);
+  });
+
+  var _this$useState = this.useState(property, {}, finalTarget),
+      subTarget = _this$useState[0],
+      id = _this$useState[3];
+
+  if (Array.isArray(subTarget)) {
+    return /*#__PURE__*/React__default.createElement(ArrayContents, {
+      key: id
+    });
+  } else {
+    if (typeof subTarget !== "object") throw new Error("You must bind to an object or an array");
+    return /*#__PURE__*/React__default.createElement(this.context.Provider, {
+      key: id + ":" + innerId.current,
+      value: {
+        target: subTarget,
+        path: updatedPath,
+        stack: [].concat(stack, [{
+          target: subTarget,
+          path: updatedPath
+        }])
+      }
+    }, children);
+  }
+
+  function update(newValue) {
+    targetIds.set(newValue, targetIds.get(target));
+    innerId.current = refreshId++;
+    setFinalTarget(newValue);
+  }
+
+  function ArrayContents() {
+    var output = [];
+
+    for (var i = 0; i < subTarget.length; i++) {
+      output.push( /*#__PURE__*/React__default.createElement(Item, {
+        key: i,
+        index: i
+      }));
+    }
+
+    return output;
+  }
+
+  function Item(_ref7) {
+    var index = _ref7.index;
+    return /*#__PURE__*/React__default.createElement(IndexContext.Provider, {
+      value: index
+    }, /*#__PURE__*/React__default.createElement(self.Bind, {
+      property: property + "." + index
+    }, children));
+  }
+}
+
+Bind.propTypes = {
+  children: propTypes.any,
+  onChange: propTypes.func,
+  property: propTypes.string.isRequired,
+  target: propTypes.object
+};
+Bind.defaultProps = {
+  onChange: function onChange() {},
+  property: ""
+};
+
 exports.Events = Events;
 exports.Socket = Socket;
 exports.bestOnly = bestOnly;
 exports.createState = createState;
-exports.ensureArray = ensureArray$1;
+exports.ensureArray = ensureArray;
 exports.handle = handle;
 exports.lessThan = lessThan;
 exports.once = once;
@@ -2453,7 +2554,7 @@ exports.raiseAsync = raiseAsync;
 exports.raiseLater = raiseLater;
 exports.setEventSource = setEventSource;
 exports.stopPropagationAndExit = stopPropagationAndExit;
-exports.useEvent = useEvent$1;
+exports.useEvent = useEvent;
 exports.useIndex = useIndex;
 exports.using = using;
 //# sourceMappingURL=index.js.map
