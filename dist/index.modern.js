@@ -2105,18 +2105,28 @@ var State = /*#__PURE__*/function () {
     update();
 
     function _update() {
+      var _this2 = this;
+
       var values = dependencies.map(function (d) {
         return get(target, d);
       });
       var newValue = fn.apply(this, values);
-      console.log(newValue);
-      set(target, property, newValue);
-      this[emit](target, path, property, newValue);
+
+      if (newValue.then) {
+        newValue.then(function (newValue) {
+          set(target, property, newValue);
+
+          _this2[emit](target, path, property, newValue);
+        });
+      } else {
+        set(target, property, newValue);
+        this[emit](target, path, property, newValue);
+      }
     }
   };
 
   _proto.useBinding = function useBinding(property, _temp) {
-    var _this2 = this,
+    var _this3 = this,
         _ref3;
 
     var _ref2 = _temp === void 0 ? {} : _temp,
@@ -2154,7 +2164,7 @@ var State = /*#__PURE__*/function () {
         setLocalValue = _useClearableState[1];
 
     var _React$useMemo = React.useMemo(function () {
-      return [_updateValue.bind(_this2), _blur.bind(_this2)];
+      return [_updateValue.bind(_this3), _blur.bind(_this3)];
     }, []),
         updateValue = _React$useMemo[0],
         blur = _React$useMemo[1];
@@ -2200,7 +2210,7 @@ var State = /*#__PURE__*/function () {
   };
 
   function State(name) {
-    var _this3 = this;
+    var _this4 = this;
 
     this.Bind = Bind;
     this.Bound = Bound;
@@ -2220,18 +2230,18 @@ var State = /*#__PURE__*/function () {
 
       useEffect(function () {
         ensureArray(pattern).forEach(function (pattern) {
-          return _this3.events.on(pattern, handler);
+          return _this4.events.on(pattern, handler);
         });
         return function () {
           ensureArray(pattern).forEach(function (pattern) {
-            return _this3.events.off(pattern, handler);
+            return _this4.events.off(pattern, handler);
           });
         };
       }, [pattern]);
     };
 
     this[emit] = function (target, path, property, value) {
-      _this3.events.emit("" + [].concat(path, getPath(property)).filter(Boolean).join("."), value);
+      _this4.events.emit("" + [].concat(path, getPath(property)).filter(Boolean).join("."), value);
     };
 
     this.Bind = this.Bind.bind(this);
@@ -2243,16 +2253,16 @@ var State = /*#__PURE__*/function () {
   }
 
   _proto.useState = function useState(property, defaultValue, target) {
-    var _this4 = this;
+    var _this5 = this;
 
     if (property === void 0) {
       property = "";
     }
 
     var updateValue = React.useMemo(function () {
-      var updateMany = _updateMany.bind(_this4);
+      var updateMany = _updateMany.bind(_this5);
 
-      var updateValue = _updateValue.bind(_this4);
+      var updateValue = _updateValue.bind(_this5);
 
       updateValue.set = updateMany;
       return updateValue;
@@ -2289,7 +2299,7 @@ var State = /*#__PURE__*/function () {
   };
 
   _proto.useSetter = function useSetter(property, target) {
-    var _this5 = this;
+    var _this6 = this;
 
     if (property === void 0) {
       property = "";
@@ -2303,9 +2313,9 @@ var State = /*#__PURE__*/function () {
     target = _this$useProperty3.target;
     path = _this$useProperty3.path;
     return React.useMemo(function () {
-      var updateMany = _updateMany.bind(_this5);
+      var updateMany = _updateMany.bind(_this6);
 
-      var updateValue = _updateValue.bind(_this5);
+      var updateValue = _updateValue.bind(_this6);
 
       updateValue.set = updateMany;
       return updateValue;

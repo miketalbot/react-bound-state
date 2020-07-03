@@ -1,3 +1,7 @@
+#### 1.0.45
+
+-   Enable async useCalculation methods
+
 #### 1.0.44
 
 -   Refactoring complete

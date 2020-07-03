@@ -224,9 +224,16 @@ class State {
                 return get(target, d)
             })
             const newValue = fn.apply(this, values)
-            console.log(newValue)
-            set(target, property, newValue)
-            this[emit](target, path, property, newValue)
+            if(newValue.then) {
+                newValue.then((newValue)=>{
+                    set(target, property, newValue)
+                    this[emit](target, path, property, newValue)
+                })
+            } else {
+                set(target, property, newValue)
+                this[emit](target, path, property, newValue)
+            }
+
         }
     }
 
