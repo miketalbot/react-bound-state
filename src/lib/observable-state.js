@@ -387,7 +387,8 @@ class State {
             updateValue.set = updateMany
             return updateValue
         }, [])
-        const { value, path } = this[useProperty](property, update, target)
+        let value, path
+        ({ value, path, property, target } = this[useProperty](property, update, target))
 
         const refresh = useRefresh()
         return [withDefault(value, defaultValue), updateValue, refresh.id]

@@ -2260,10 +2260,14 @@ var State = /*#__PURE__*/function () {
       updateValue.set = updateMany;
       return updateValue;
     }, []);
+    var value, path;
 
-    var _this$useProperty2 = this[useProperty](property, update, target),
-        value = _this$useProperty2.value,
-        path = _this$useProperty2.path;
+    var _this$useProperty2 = this[useProperty](property, update, target);
+
+    value = _this$useProperty2.value;
+    path = _this$useProperty2.path;
+    property = _this$useProperty2.property;
+    target = _this$useProperty2.target;
 
     var refresh = _useRefresh();
 
